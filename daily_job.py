@@ -158,7 +158,12 @@ def run_daily_job(
             print("⚡ DRY RUN 模式，使用示例数据")
             content = _get_mock_content()
         else:
-            content = generate_daily_content(character=character, style=style)
+            try:
+                content = generate_daily_content(character=character, style=style)
+            except Exception as api_err:
+                print(f"  ⚠️ API 调用失败: {api_err}")
+                print("  ⚡ 自动降级为 DRY RUN 模式")
+                content = _get_mock_content()
 
         # 分配随机视觉元素
         char_hash = hash(content["character"])
