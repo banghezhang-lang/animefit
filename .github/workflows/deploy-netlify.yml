@@ -1,23 +1,37 @@
-# AnimeFit 自动部署到 Netlify
-# 每天 08:30 UTC 自动生成内容并部署
+# AnimeFit 定时自动构建
+# 每天北京时间 09:00 自动生成内容并通过 Netlify Build Hook 触发部署
+# 也支持推送到 master 时自动部署 + 手动触发
 
-name: Deploy AnimeFit to Netlify
+name: AnimeFit Daily Build
 
 on:
-  # 定时触发：每天 08:30 UTC（北京时间 16:30）
+  # 定时触发：每天 01:00 UTC（北京时间 09:00）
   schedule:
-    - cron: '30 8 * * *'
+    - cron: '0 1 * * *'
   
-  # 手动触发
+  # 手动触发（GitHub 仓库 Actions 页面点击 Run workflow）
   workflow_dispatch:
-  
-  # 推送到 main 分支时触发
+    inputs:
+      character:
+        description: '指定角色（可选，留空随机）'
+        required: false
+        default: ''
+      style:
+        description: '指定风格（可选，留空随机）'
+        required: false
+        default: ''
+
+  # 推送到 master 分支时触发
   push:
-    branches: [main, master]
+    branches: [master]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     
     steps:
       - name: Checkout
@@ -44,9 +58,9 @@ jobs:
         uses: nwtgck/actions-netlify@v3.0
         with:
           publish-dir: './output'
-          production-branch: main
+          production-branch: master
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from GitHub Actions"
+          deploy-message: "Auto deploy ${{ github.event_name }} @ $(date +'%Y-%m-%d %H:%M')"
           enable-pull-request-comment: false
           enable-commit-comment: false
           overwrites-pull-request-comment: false
