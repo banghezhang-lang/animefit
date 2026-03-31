@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="每日精选知名动漫女性角色时尚穿搭，融合动漫文化与现代时尚美学，带你探索二次元与现实交界的穿搭灵感。">
+  <title>AnimeFit · 每日动漫时尚</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,400&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink: #ff6eb4;
+      --purple: #9b5de5;
+      --cyan: #00f5d4;
+      --dark: #0d0d1a;
+      --card-bg: #16162a;
+      --text: #e8e8f0;
+      --muted: #888899;
+      --border: rgba(255,255,255,0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── 背景粒子效果 ── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(155,93,229,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(255,110,180,0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(0,245,212,0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── 导航 ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      background: rgba(13,13,26,0.85);
+      border-bottom: 1px solid var(--border);
+      padding: 0 5vw;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 1px;
+    }
+
+    .lang-switcher {
+      display: flex;
+      gap: 8px;
+    }
+
+    .lang-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .lang-btn.active, .lang-btn:hover {
+      border-color: var(--pink);
+      color: var(--pink);
+      background: rgba(255,110,180,0.08);
+    }
+
+    nav .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    nav .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+
+    nav .nav-links a:hover { color: var(--text); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      padding: 80px 5vw 60px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(155,93,229,0.15);
+      border: 1px solid rgba(155,93,229,0.3);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.78rem;
+      color: #c4a0ff;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+
+    .hero-badge::before { content: '✦'; }
+
+    h1.hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    h1.hero-title .line1 { display: block; color: var(--text); }
+    h1.hero-title .line2 {
+      display: block;
+      font-style: italic;
+      background: linear-gradient(135deg, var(--pink) 0%, var(--purple) 50%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    /* ── 今日卡片（特别展示） ── */
+    .today-section {
+      position: relative;
+      z-index: 1;
+      padding: 0 5vw 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .section-label span {
+      color: var(--cyan);
+    }
+
+    /* 今日主卡 */
+    .today-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 60px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .today-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(155,93,229,0.2);
+    }
+
+    .today-image {
+      position: relative;
+      min-height: 500px;
+      background: linear-gradient(135deg, #1a0a2e, #2d1155, #0d2040);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .today-image .ai-placeholder {
+      text-align: center;
+      color: rgba(255,255,255,0.15);
+    }
+
+    .ai-placeholder .char-silhouette {
+      font-size: 8rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 40px rgba(155,93,229,0.5));
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .today-image::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 40%;
+      background: linear-gradient(to top, var(--card-bg), transparent);
+    }
+
+    .today-image .img-tag {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255,110,180,0.9);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      backdrop-filter: blur(10px);
+    }
+
+    .today-content {
+      padding: 48px 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .today-content .date-tag {
+      font-size: 0.72rem;
+      color: var(--cyan);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .today-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      line-height: 1.3;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .today-content .tagline {
+      font-size: 0.95rem;
+      color: var(--purple);
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .today-content .desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 28px;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .tag {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .tag:hover {
+      border-color: var(--pink);
+      color: var(--pink);
+      background: rgba(255,110,180,0.08);
+    }
+
+    .read-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--pink);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-decoration: none;
+    }
+
+    .read-more .arrow {
+      transition: transform 0.2s;
+    }
+
+    .today-card:hover .read-more .arrow {
+      transform: translateX(4px);
+    }
+
+    /* ── 历史文章网格 ── */
+    .archive-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .archive-grid { grid-template-columns: repeat(2, 1fr); }
+      .today-card { grid-template-columns: 1fr; }
+      .today-image { min-height: 300px; }
+    }
+
+    @media (max-width: 600px) {
+      .archive-grid { grid-template-columns: 1fr; }
+    }
+
+    .archive-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .archive-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      border-color: rgba(155,93,229,0.3);
+    }
+
+    .archive-image {
+      height: 200px;
+      background: linear-gradient(135deg, #1a0a2e, #2d1155);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      position: relative;
+    }
+
+    .archive-image .emoji {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .archive-body {
+      padding: 20px;
+    }
+
+    .archive-body .a-date {
+      font-size: 0.7rem;
+      color: var(--cyan);
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+
+    .archive-body h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .archive-body .a-tagline {
+      font-size: 0.8rem;
+      color: var(--purple);
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    .archive-body .a-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .archive-body .tag {
+      font-size: 0.68rem;
+      padding: 2px 8px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 40px 5vw;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    footer .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── 多语言切换隐藏层 ── */
+    [data-lang] { display: none; }
+    body.lang-zh [data-lang="zh"] { display: block; }
+    body.lang-zh [data-lang="zh"].inline { display: inline; }
+    body.lang-en [data-lang="en"] { display: block; }
+    body.lang-en [data-lang="en"].inline { display: inline; }
+    body.lang-ja [data-lang="ja"] { display: block; }
+    body.lang-ja [data-lang="ja"].inline { display: inline; }
+
+    /* 兼容 flex 布局 */
+    body.lang-zh [data-lang="zh"].flex { display: flex; }
+    body.lang-en [data-lang="en"].flex { display: flex; }
+    body.lang-ja [data-lang="ja"].flex { display: flex; }
+
+    /* ── 文章详情页覆盖层 ── */
+    .article-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: var(--dark);
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .article-overlay.open {
+      transform: translateX(0);
+    }
+
+    .article-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 80px 5vw;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-bottom: 40px;
+      background: none;
+      border: none;
+      font-family: inherit;
+      transition: color 0.2s;
+    }
+
+    .back-btn:hover { color: var(--text); }
+
+    .article-hero-img {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, #1a0a2e, #2d1155, #0d2040);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8rem;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .article-hero-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(13,13,26,0.6));
+    }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .article-meta .a-date {
+      font-size: 0.75rem;
+      color: var(--cyan);
+      letter-spacing: 1.5px;
+    }
+
+    .article-meta .a-category {
+      background: rgba(155,93,229,0.15);
+      border: 1px solid rgba(155,93,229,0.3);
+      color: #c4a0ff;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+    }
+
+    .article-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+
+    .article-tagline {
+      font-size: 1rem;
+      color: var(--purple);
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .article-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 36px;
+    }
+
+    .article-body {
+      font-size: 0.95rem;
+      line-height: 1.9;
+      color: #c8c8d8;
+    }
+
+    .article-body p {
+      margin-bottom: 20px;
+    }
+
+    .article-body h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--text);
+      margin: 32px 0 16px;
+    }
+
+    .article-body blockquote {
+      border-left: 3px solid var(--pink);
+      padding-left: 20px;
+      color: var(--muted);
+      font-style: italic;
+      margin: 24px 0;
+    }
+
+    /* ── prompt 展示框 ── */
+    .prompt-box {
+      background: rgba(0,245,212,0.05);
+      border: 1px solid rgba(0,245,212,0.2);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 32px 0;
+    }
+
+    .prompt-box .prompt-label {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: var(--cyan);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .prompt-box .prompt-text {
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.85rem;
+      color: #a0f0e0;
+      line-height: 1.6;
+    }
+
+    /* ── 加载动画 ── */
+    .shimmer {
+      background: linear-gradient(90deg, var(--card-bg) 25%, rgba(255,255,255,0.04) 50%, var(--card-bg) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── 滚动条美化 ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--dark); }
+    ::-webkit-scrollbar-thumb { background: rgba(155,93,229,0.4); border-radius: 3px; }
+  </style>
+</head>
+
+<body class="lang-zh">
+
+<!-- ── 导航 ── -->
+<nav>
+  <div class="logo">AnimeFit</div>
+  <ul class="nav-links">
+    <li><a href="#" data-lang="zh" class="inline">首页</a><a href="#" data-lang="en" class="inline">Home</a><a href="#" data-lang="ja" class="inline">ホーム</a></li>
+    <li><a href="#" data-lang="zh" class="inline">归档</a><a href="#" data-lang="en" class="inline">Archive</a><a href="#" data-lang="ja" class="inline">アーカイブ</a></li>
+    <li><a href="#" data-lang="zh" class="inline">关于</a><a href="#" data-lang="en" class="inline">About</a><a href="#" data-lang="ja" class="inline">について</a></li>
+  </ul>
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('zh')">中文</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('ja')">日本語</button>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-badge">DAILY ANIME FASHION</div>
+  <h1 class="hero-title">
+    <span class="line1" data-lang="zh">每日一位</span>
+    <span class="line1" data-lang="en">Daily Anime</span>
+    <span class="line1" data-lang="ja">毎日のアニメ</span>
+    <span class="line2">Fashion Muse</span>
+  </h1>
+  <p class="hero-sub" data-lang="zh">以动漫杂志视角，重新解读知名女性角色的时尚基因。每天一个角色，每天一种风格。</p>
+  <p class="hero-sub" data-lang="en">Reinterpreting iconic anime heroines through a fashion magazine lens. One character, one style, every day.</p>
+  <p class="hero-sub" data-lang="ja">ファッション誌の視点で、有名アニメ女性キャラクターの美学を再解釈。毎日一人、毎日一スタイル。</p>
+</section>
+
+<!-- ── 今日内容 ── -->
+<section class="today-section">
+  <div class="section-label">
+    <span data-lang="zh" class="inline">今日特辑</span>
+    <span data-lang="en" class="inline">TODAY'S FEATURE</span>
+    <span data-lang="ja" class="inline">本日のフィーチャー</span>
+  </div>
+
+  <!-- 今日主卡 -->
+  <a class="today-card" onclick="openArticle('today'); return false;" href="#">
+    <div class="today-image">
+      <div class="img-tag">TODAY · 2026.03.31</div>
+      <div class="ai-placeholder">
+        <div class="char-silhouette">🌸</div>
+      </div>
+    </div>
+    <div class="today-content">
+      <div class="date-tag">2026.03.31 · ANIME FASHION</div>
+      <h2 data-lang="zh">零之使魔 · 路易丝<br>粉色叛逆，贵族甜辣风</h2>
+      <h2 data-lang="en">Zero no Tsukaima · Louise<br>Pink Rebel, Noble Sweet-Spicy Style</h2>
+      <h2 data-lang="ja">ゼロの使い魔 · ルイズ<br>ピンクの反逆、貴族スイートスパイシー</h2>
+      <p class="tagline" data-lang="zh">「娇小身形也能征服整个魔法学院」</p>
+      <p class="tagline" data-lang="en">"Even a petite frame can conquer the entire Magic Academy"</p>
+      <p class="tagline" data-lang="ja">「小柄な体でも魔法学院全体を征服できる」</p>
+      <p class="desc" data-lang="zh">路易丝·弗郎索瓦·勒·布朗·德·拉·瓦利埃尔，贵族出身的零魔法少女，以粉色双马尾和充满爆炸意外的魔法课著称。她的穿搭兼具贵族礼仪与少女张力——蕾丝领、褶皱裙摆、搭配深色马甲，细节中藏着执着与骄傲。本期我们用现代时尚语言重新诠释她的标志性风格。</p>
+      <p class="desc" data-lang="en">Louise Françoise Le Blanc de La Vallière, a noble-born zero-magic girl famous for her pink twin-tails and explosion-prone magic classes. Her style combines aristocratic etiquette with girlish tension—lace collar, pleated skirt, dark vest—with details hiding her stubborn pride. This issue we reinterpret her iconic style in modern fashion language.</p>
+      <p class="desc" data-lang="ja">ルイズ・フランソワーズ・ル・ブラン・ド・ラ・ヴァリエール、ゼロ魔法の貴族少女。ピンクのツインテールと爆発魔法で知られる彼女のスタイルは、貴族的な礼儀と少女の張力を兼ね備えている。レースカラー、プリーツスカート、ダークベスト—細部に頑固なプライドが隠されている。</p>
+      <div class="tags">
+        <span class="tag"># 路易丝</span>
+        <span class="tag"># 甜辣风</span>
+        <span class="tag"># 贵族少女</span>
+        <span class="tag"># 粉色系</span>
+        <span class="tag"># 蕾丝</span>
+        <span class="tag"># 魔法少女</span>
+      </div>
+      <span class="read-more">
+        <span data-lang="zh" class="inline">阅读全文</span>
+        <span data-lang="en" class="inline">Read More</span>
+        <span data-lang="ja" class="inline">続きを読む</span>
+        <span class="arrow">→</span>
+      </span>
+    </div>
+  </a>
+
+  <!-- 历史归档 -->
+  <div class="section-label" style="margin-top: 0;">
+    <span data-lang="zh" class="inline">往期回顾</span>
+    <span data-lang="en" class="inline">PAST ISSUES</span>
+    <span data-lang="ja" class="inline">バックナンバー</span>
+  </div>
+
+  <div class="archive-grid">
+    <!-- Card 1 -->
+    <a class="archive-card" onclick="openArticle('haruhi'); return false;" href="#">
+      <div class="archive-image">
+        <span class="emoji">🎀</span>
+      </div>
+      <div class="archive-body">
+        <div class="a-date">2026.03.30</div>
+        <h3 data-lang="zh">凉宫春日 · Y2K复古校园风</h3>
+        <h3 data-lang="en">Haruhi Suzumiya · Y2K Retro Campus</h3>
+        <h3 data-lang="ja">涼宮ハルヒ · Y2Kレトロキャンパス</h3>
+        <p class="a-tagline" data-lang="zh">「宇宙最任性的时尚领袖」</p>
+        <p class="a-tagline" data-lang="en">"The most wilful fashion leader in the universe"</p>
+        <p class="a-tagline" data-lang="ja">「宇宙一わがままなファッションリーダー」</p>
+        <div class="a-tags">
+          <span class="tag">#凉宫春日</span>
+          <span class="tag">#Y2K</span>
+          <span class="tag">#校服改造</span>
+          <span class="tag">#发带</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 2 -->
+    <a class="archive-card" onclick="openArticle('misaka'); return false;" href="#">
+      <div class="archive-image" style="background: linear-gradient(135deg, #0d1a3a, #0a2a5e);">
+        <span class="emoji">⚡</span>
+      </div>
+      <div class="archive-body">
+        <div class="a-date">2026.03.29</div>
+        <h3 data-lang="zh">御坂美琴 · 电系帅气中性风</h3>
+        <h3 data-lang="en">Misaka Mikoto · Electric Androgynous Cool</h3>
+        <h3 data-lang="ja">御坂美琴 · 電気系クールアンドロジナス</h3>
+        <p class="a-tagline" data-lang="zh">「伏特最强的衣品担当」</p>
+        <p class="a-tagline" data-lang="en">"The strongest style icon in Judgment"</p>
+        <p class="a-tagline" data-lang="ja">「判定最強のスタイルアイコン」</p>
+        <div class="a-tags">
+          <span class="tag">#御坂美琴</span>
+          <span class="tag">#中性风</span>
+          <span class="tag">#超电磁炮</span>
+          <span class="tag">#校服</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 3 -->
+    <a class="archive-card" onclick="openArticle('miku'); return false;" href="#">
+      <div class="archive-image" style="background: linear-gradient(135deg, #0a2a1e, #0d3d28);">
+        <span class="emoji">🍀</span>
+      </div>
+      <div class="archive-body">
+        <div class="a-date">2026.03.28</div>
+        <h3 data-lang="zh">中野三玖 · 复古vintage耳机少女</h3>
+        <h3 data-lang="en">Nakano Miku · Vintage Headphone Girl</h3>
+        <h3 data-lang="ja">中野三玖 · ヴィンテージヘッドフォン少女</h3>
+        <p class="a-tagline" data-lang="zh">「沉默系最强的穿搭实力」</p>
+        <p class="a-tagline" data-lang="en">"Silent but deadly fashion power"</p>
+        <p class="a-tagline" data-lang="ja">「無口系最強のファッション力」</p>
+        <div class="a-tags">
+          <span class="tag">#中野三玖</span>
+          <span class="tag">#Vintage</span>
+          <span class="tag">#五等分</span>
+          <span class="tag">#耳机</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-logo">AnimeFit</div>
+  <p data-lang="zh">每日自动生成 · AI 驱动内容 · 多语言发布</p>
+  <p data-lang="en">Auto-generated daily · AI-powered content · Multilingual</p>
+  <p data-lang="ja">毎日自動生成 · AIコンテンツ · 多言語対応</p>
+  <p style="margin-top: 12px; font-size: 0.72rem; opacity: 0.4;">© 2026 AnimeFit · Powered by AI</p>
+</footer>
+
+<!-- ── 文章详情覆盖层 ── -->
+<div class="article-overlay" id="articleOverlay">
+  <div class="article-inner" id="articleContent">
+    <!-- 动态注入 -->
+  </div>
+</div>
+
+<script>
+// ── 多语言 ──
+let currentLang = 'zh';
+function setLang(lang) {
+  currentLang = lang;
+  document.body.className = 'lang-' + lang;
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ── 文章数据 ──
+const articles = {
+  today: {
+    date: '2026.03.31',
+    emoji: '🌸',
+    imgGradient: 'linear-gradient(135deg, #2d0a3e, #4a1175, #0d2040)',
+    title: {
+      zh: '零之使魔 · 路易丝<br>粉色叛逆，贵族甜辣风',
+      en: 'Zero no Tsukaima · Louise<br>Pink Rebel, Noble Sweet-Spicy Style',
+      ja: 'ゼロの使い魔 · ルイズ<br>ピンクの反逆、貴族スイートスパイシー'
+    },
+    tagline: {
+      zh: '「娇小身形也能征服整个魔法学院」',
+      en: '"Even a petite frame can conquer the entire Magic Academy"',
+      ja: '「小柄な体でも魔法学院全体を征服できる」'
+    },
+    tags: ['路易丝', '甜辣风', '贵族少女', '粉色系', '蕾丝', '魔法少女', '零之使魔'],
+    prompt: 'Louise Françoise, petite anime girl with pink twin-tails, aristocratic medieval school uniform, dark navy vest over white lace blouse, pleated skirt, tsundere expression, fantasy academy background, watercolor fashion illustration style, pastel pink and deep purple palette, haute couture editorial',
+    desc: {
+      zh: '探索《零之使魔》路易丝·德·拉·瓦利埃尔的时尚密码——粉色双马尾遇上贵族蕾丝，甜辣风格背后藏着多少倔强与执着？',
+      en: 'Decoding the fashion DNA of Louise de La Vallière from Zero no Tsukaima—where pink twin-tails meet aristocratic lace, and sweet-spicy style hides layers of stubborn pride.',
+      ja: 'ゼロの使い魔のルイズ・ド・ラ・ヴァリエールのファッションコードを解読—ピンクのツインテールと貴族レースが出会う場所で、スイートスパイシースタイルに隠された頑固なプライドを探る。'
+    },
+    body: {
+      zh: `<p>如果你要在整个动漫世界里找一个把"娇小"和"霸气"融合得最极致的角色，路易丝·弗郎索瓦无疑是第一候选人。身为特丽斯坦尼亚魔法学院贵族出身的学生，她的着装语言里同时存在着两套密码：一套来自门阀礼教，一套来自少女心气。</p>
+<h3>贵族蕾丝 × 叛逆粉</h3>
+<p>路易丝最标志性的造型是那件深蓝色马甲配白色蕾丝衬衫——这个组合在当代时尚圈里有一个精准的对应词：<strong>dark academia meets fairycore</strong>。深色硬挺的马甲提供了结构感与权威感，而白色蕾丝在领口和袖口处的蔓延，则悄悄泄露了她内心深处那份拒绝被忽视的少女情怀。</p>
+<blockquote>「粉色不是软弱，而是选择用最鲜明的颜色在世界上占据一席之地。」</blockquote>
+<p>她的标志性粉色双马尾在发型设计上极为讲究——不是刻意的甜美，而更像是一种宣告：我不需要伪装成成熟来证明自己的价值。这种"明知是粉色还要挺着腰板"的态度，恰恰与当下流行的 <strong>Coquette + Power Dressing</strong> 融合趋势高度契合。</p>
+<h3>现代时尚灵感转化</h3>
+<p>如果把路易丝的穿搭语言翻译到现代衣橱，推荐以下搭配公式：</p>
+<p>① <strong>结构感黑色/深蓝小西装</strong>（对应马甲的贵族气场）+ ② <strong>白色蕾丝衬衫或奥地利领衬衣</strong>（保留甜美底色）+ ③ <strong>粉色迷你百褶裙</strong>（忠于原版的颜色宣言）+ ④ <strong>黑色乐福鞋或Mary Jane</strong>（收尾气场）。</p>
+<p>整套造型的核心哲学：用强势单品包裹柔软内芯，用颜色发声，用版型塑造地位感——这，就是路易丝式时尚的精髓。</p>`,
+      en: `<p>If you were to find the single anime character who best fuses "petite" with "commanding presence," Louise Françoise would be the undisputed answer. As a noble student at Tristain Academy of Magic, her fashion language operates on two simultaneous frequencies: aristocratic decorum and unfiltered girlhood.</p>
+<h3>Noble Lace × Rebel Pink</h3>
+<p>Louise's most iconic look—dark navy vest over a white lace blouse—maps precisely onto a contemporary aesthetic crossover: <strong>dark academia meets fairycore</strong>. The structured dark vest provides authority and silhouette, while the white lace creeping at collar and cuffs quietly reveals a refusal to be overlooked.</p>
+<blockquote>"Pink isn't weakness—it's choosing the most vivid color to stake your claim in the world."</blockquote>
+<p>Her signature pink twin-tails are no accident of character design. They declare: I don't need to perform maturity to prove my worth. This attitude—standing tall in pink without apology—aligns perfectly with the current <strong>Coquette + Power Dressing</strong> fusion trend.</p>
+<h3>Modern Wardrobe Translation</h3>
+<p>To translate Louise's aesthetic into a real wardrobe, try this formula:</p>
+<p>① <strong>Structured black/navy blazer</strong> (channeling the noble vest energy) + ② <strong>White lace blouse or Austrian-collar shirt</strong> (keeping the sweet undertone) + ③ <strong>Pink mini pleated skirt</strong> (faithful to her color manifesto) + ④ <strong>Black loafers or Mary Janes</strong> (grounding the look).</p>
+<p>The philosophy: wrap softness in strength, speak in color, build status through silhouette. That is the essence of Louise-style fashion.</p>`,
+      ja: `<p>アニメ界全体で「小柄」と「威厳」を最も極端に融合したキャラクターを一人挙げるとしたら、ルイズ・フランソワーズが間違いなくその筆頭候補だ。トリステイン魔法学院の貴族生徒として、彼女のファッション言語には二つのコードが同時に存在している：門閥の礼儀と少女のプライド。</p>
+<h3>貴族レース × 反逆のピンク</h3>
+<p>ルイズの最もアイコニックなルック——白いレースブラウスの上に濃紺のベスト——は、現代のファッション美学に完璧に対応する：<strong>ダークアカデミア meets フェアリーコア</strong>。構造的なダークベストが権威と存在感を与え、衿や袖口に広がる白いレースが、見過ごされることを拒む少女心をひそかに明かす。</p>
+<blockquote>「ピンクは弱さではなく、最も鮮やかな色で世界に自分の場所を主張する選択だ。」</blockquote>
+<p>彼女のトレードマークであるピンクのツインテールは、成熟を演じなくても自分の価値を証明できるという宣言。この姿勢は、現在流行している<strong>コケット + パワードレッシング</strong>の融合トレンドと完璧に一致している。</p>
+<h3>現代ワードローブへの翻訳</h3>
+<p>ルイズの美学を現代のクローゼットに翻訳するなら：① <strong>構造的な黒/ネイビーのブレザー</strong> + ② <strong>白いレースブラウス</strong> + ③ <strong>ピンクのミニプリーツスカート</strong> + ④ <strong>黒のローファーまたはメアリージェーン</strong>。芯は柔らかく、強さで包む——これがルイズ式ファッションの真髄だ。</p>`
+    }
+  }
+};
+
+// ── 打开文章详情 ──
+function openArticle(id) {
+  const data = articles[id] || articles['today'];
+  const lang = currentLang;
+  const overlay = document.getElementById('articleOverlay');
+  const content = document.getElementById('articleContent');
+
+  content.innerHTML = `
+    <button class="back-btn" onclick="closeArticle()">← <span>${{zh:'返回',en:'Back',ja:'戻る'}[lang]}</span></button>
+    <div class="article-hero-img" style="background: ${data.imgGradient || 'linear-gradient(135deg, #1a0a2e, #2d1155)'}">
+      <span style="font-size: 7rem; position: relative; z-index: 1; animation: float 5s ease-in-out infinite">${data.emoji}</span>
+    </div>
+    <div class="article-meta">
+      <span class="a-date">${data.date}</span>
+      <span class="a-category">ANIME FASHION</span>
+    </div>
+    <h1 class="article-title">${data.title[lang] || data.title.zh}</h1>
+    <p class="article-tagline">${data.tagline[lang] || data.tagline.zh}</p>
+    <div class="article-tags">
+      ${data.tags.map(t => `<span class="tag">#${t}</span>`).join('')}
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label">✦ AI Image Prompt</div>
+      <div class="prompt-text">${data.prompt}</div>
+    </div>
+    <div class="article-body">
+      ${data.body[lang] || data.body.zh}
+    </div>
+  `;
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeArticle() {
+  document.getElementById('articleOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ESC 关闭
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeArticle();
+});
+</script>
+</body>
+</html>
