@@ -5,31 +5,42 @@ AnimeFit 网站配置文件
 # ── OpenAI / 兼容 API 配置 ──
 # DeepSeek 配置（推荐，性价比高，国内访问稳定）
 API_KEY = "sk-bd00d21119fd43239a7dc7f3bbb6e42d"  # DeepSeek API Key
-API_BASE = "https://api.deepseek.com/v1" # DeepSeek API 地址
-TEXT_MODEL = "deepseek-chat"             # DeepSeek 文本模型（V3）
+API_BASE = "https://api.deepseek.com/v1"  # DeepSeek API 地址
+TEXT_MODEL = "deepseek-chat"  # DeepSeek 文本模型（V3）
 
-# 图片生成配置（DeepSeek 不支持图片生成，需用其他服务）
-# 方案1：使用 SiliconFlow 的免费 FLUX 模型
-# IMAGE_API_KEY = "sk-xxxxxxxx"          # SiliconFlow API Key
-# IMAGE_API_BASE = "https://api.siliconflow.cn/v1"
-# IMAGE_MODEL = "black-forest-labs/FLUX.1-schnell"
+# ── 图片生成配置 ──
+# Pollinations.ai：完全免费，无需 API Key
+# 直接通过 URL 生成图片，图片 URL 格式：https://image.pollinations.ai/prompt/{encoded_prompt}
+IMAGE_PROVIDER = "pollinations"  # "pollinations" | "siliconflow" | "none"
+POLLINATIONS_MODEL = "flux"  # flux | turbo
 
-# 方案2：使用本地 Stable Diffusion（需自己搭建）
-# IMAGE_API_BASE = "http://localhost:7860"
-# IMAGE_MODEL = "local"
+# SiliconFlow 备选方案（注册后免费额度，画质更高）
+# SILICONFLOW_API_KEY = "sk-xxx"  # 注册 https://cloud.siliconflow.cn 获取
+# SILICONFLOW_API_BASE = "https://api.siliconflow.cn/v1"
+# SILICONFLOW_IMAGE_MODEL = "black-forest-labs/FLUX.1-schnell"
 
-# 方案3：暂不生成图片（用占位图）
-IMAGE_MODEL = None                       # 设为 None 则跳过图片生成
 IMAGE_SIZE = "1024x1024"
 
 # ── 网站配置 ──
 SITE_TITLE = "AnimeFit · 每日动漫时尚"
-SITE_URL = "https://your-site.com"       # 替换为实际域名
-OUTPUT_DIR = "./output"                  # 静态文件输出目录
-POSTS_PER_PAGE = 9                       # 首页展示文章数
+SITE_URL = "https://jolly-puffpuff-cb278b.netlify.app"  # 实际域名
+OUTPUT_DIR = "./output"  # 静态文件输出目录
+POSTS_PER_PAGE = 9  # 首页展示文章数
 
-# ── 内容语言 ──
-LANGUAGES = ["zh", "en", "ja"]          # 支持语言列表
+# ── 内容语言（8种）──
+LANGUAGES = ["zh", "en", "ja", "ar", "es", "fr", "de", "hi"]
+
+# 语言名称和元信息
+LANG_INFO = {
+    "zh": {"name": "中文", "name_native": "中文", "html_lang": "zh-CN", "flag": "🇨🇳", "text_dir": "ltr"},
+    "en": {"name": "English", "name_native": "English", "html_lang": "en", "flag": "🇺🇸", "text_dir": "ltr"},
+    "ja": {"name": "日本語", "name_native": "日本語", "html_lang": "ja", "flag": "🇯🇵", "text_dir": "ltr"},
+    "ar": {"name": "العربية", "name_native": "العربية", "html_lang": "ar", "flag": "🇸🇦", "text_dir": "rtl"},
+    "es": {"name": "Español", "name_native": "Español", "html_lang": "es", "flag": "🇪🇸", "text_dir": "ltr"},
+    "fr": {"name": "Français", "name_native": "Français", "html_lang": "fr", "flag": "🇫🇷", "text_dir": "ltr"},
+    "de": {"name": "Deutsch", "name_native": "Deutsch", "html_lang": "de", "flag": "🇩🇪", "text_dir": "ltr"},
+    "hi": {"name": "हिन्दी", "name_native": "हिन्दी", "html_lang": "hi", "flag": "🇮🇳", "text_dir": "ltr"},
+}
 
 # ── 角色主题库（每日从此随机选取或按序轮换）──
 ANIME_CHARACTERS = [
@@ -40,25 +51,22 @@ ANIME_CHARACTERS = [
     "天使（《天使的心跳》）",
     "小鸟游六花（《中二病也要谈恋爱》）",
     "雪之下雪乃（《我的青春恋爱物语果然有问题》）",
-    "桐人（《刀剑神域》爱丽丝）",
+    "桐人（《刀剑神域》）",
     "爱丽丝·祖贝鲁克（《刀剑神域》）",
     "辉夜大小姐（《辉夜大小姐想让我告白》）",
     "四宫芽衣子（《辉夜大小姐》）",
     "雾岛丽奈（《吹响吧！上低音号》）",
     "长门有希（《凉宫春日》）",
-    "依玛里（《我的英雄学院》耳郎京香）",
     "八百万百（《我的英雄学院》）",
     "战场ヶ原ひたぎ（《物语》系列）",
     "千与千寻的小千（《千与千寻》）",
-    "菜月亚（《Re:从零开始的异世界生活》）",
     "雷姆（《Re:Zero》）",
     "艾米利亚（《Re:Zero》）",
     "托尔（《小林家的龙女仆》）",
-    "酸素弱点（《Spy×Family》约尔·福杰）",
+    "约尔·福杰（《Spy×Family》）",
     "阿尼亚（《Spy×Family》）",
-    "阿窦·弗雷加特（《Spy×Family》约尔）",
-    "春日望（《孤独摇滚》）",
     "后藤一里（《孤独摇滚》）",
+    "春日望（《孤独摇滚》）",
     "星野爱（《我推的孩子》）",
     "有马加奈（《我推的孩子》）",
     "虎杖祢豆子（《鬼灭之刃》）",

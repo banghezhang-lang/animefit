@@ -11,7 +11,8 @@ from openai import OpenAI
 try:
     from config import (
         API_KEY, API_BASE, TEXT_MODEL,
-        ANIME_CHARACTERS, FASHION_STYLES
+        ANIME_CHARACTERS, FASHION_STYLES,
+        LANGUAGES, LANG_INFO
     )
 except ImportError:
     # 默认配置
@@ -20,6 +21,17 @@ except ImportError:
     TEXT_MODEL = "deepseek-chat"
     ANIME_CHARACTERS = ["御坂美琴（《某科学的超电磁炮》）"]
     FASHION_STYLES = ["电系帅气中性风"]
+    LANGUAGES = ["zh", "en", "ja", "ar", "es", "fr", "de", "hi"]
+    LANG_INFO = {
+        "zh": {"name": "中文", "html_lang": "zh-CN", "text_dir": "ltr"},
+        "en": {"name": "English", "html_lang": "en", "text_dir": "ltr"},
+        "ja": {"name": "日本語", "html_lang": "ja", "text_dir": "ltr"},
+        "ar": {"name": "العربية", "html_lang": "ar", "text_dir": "rtl"},
+        "es": {"name": "Español", "html_lang": "es", "text_dir": "ltr"},
+        "fr": {"name": "Français", "html_lang": "fr", "text_dir": "ltr"},
+        "de": {"name": "Deutsch", "html_lang": "de", "text_dir": "ltr"},
+        "hi": {"name": "हिन्दी", "html_lang": "hi", "text_dir": "ltr"},
+    }
 
 
 client = OpenAI(api_key=API_KEY, base_url=API_BASE)
@@ -111,26 +123,39 @@ Output only the prompt text, nothing else.
 # ─────────────────────────────────────────────
 def step3_generate_tagline(theme: dict) -> dict:
     """
-    输出：{"zh": "...", "en": "...", "ja": "..."}
+    输出：{"zh": "...", "en": "...", "ja": "...", "ar": "...", "es": "...", "fr": "...", "de": "...", "hi": "..."}
     """
-    system = "你是一名时尚杂志主编，善于提炼一句话金句。"
+    system = "你是一名时尚杂志主编，善于提炼一句话金句。精通中文、英文、日文、阿拉伯文、西班牙文、法文、德文、印地文。"
+    
+    lang_names = {
+        "zh": "中文", "en": "英文", "ja": "日文",
+        "ar": "阿拉伯文", "es": "西班牙文", "fr": "法文", "de": "德文", "hi": "印地文"
+    }
+    lang_list = ", ".join(f'{k}({v})' for k, v in lang_names.items())
+    
     prompt = f"""
 请根据以下主题，提炼出一句话的核心内容，要求：
 - 有文学感，像杂志封面金句
-- 分别用中文、英文、日文输出
-- 中文不超过20字，英文不超过15词，日文不超过25字
+- 分别用 {lang_list} 输出
+- 每种语言不超过20词
+- 阿拉伯文从右到左书写
 
 主题：{theme['theme_full']}
 角色：{theme['character']}
 
 输出 JSON 格式：
-{{"zh": "中文金句", "en": "English tagline", "ja": "日本語タグライン"}}
+{{"zh": "中文金句", "en": "English tagline", "ja": "日本語タグライン", "ar": "العربية عبارة", "es": "Spanish tagline", "fr": "Phrase d'accroche française", "de": "Deutsche Schlagzeile", "hi": "हिंदी टैगलाइन"}}
 只输出 JSON。
 """
     result = chat(system, prompt, temperature=0.85)
     match = re.search(r'\{.*\}', result, re.DOTALL)
     if match:
-        return json.loads(match.group())
+        taglines = json.loads(match.group())
+        # 确保所有语言都有值
+        for lang in LANGUAGES:
+            if lang not in taglines:
+                taglines[lang] = taglines.get("en", "Anime Fashion Inspiration")
+        return taglines
     raise ValueError(f"Step3 JSON 解析失败: {result}")
 
 
@@ -171,29 +196,45 @@ def step4_generate_tags(theme: dict) -> list:
 # ─────────────────────────────────────────────
 def step5_generate_description(theme: dict) -> dict:
     """
-    输出：{"zh": "...", "en": "...", "ja": "..."}
+    输出：8语版本的 SEO meta description
     """
-    system = "你是一名SEO专家，精通网页description优化，同时善于提炼内容精华。"
+    lang_descs = {
+        "zh": "中文：120-150字，自然流畅，包含核心关键词",
+        "en": "English: 150-160 characters, SEO standard, include character name and style keywords",
+        "ja": "日本語：120-150字、自然、キーワードを含む",
+        "ar": "Arabic: 120-150 characters, SEO optimized, right-to-left",
+        "es": "Spanish: 150-160 characters, SEO optimized",
+        "fr": "French: 150-160 characters, SEO optimized",
+        "de": "German: 150-160 characters, SEO optimized",
+        "hi": "Hindi: 120-150 characters, SEO optimized",
+    }
+    lang_list = "\n".join(f"- {v}" for k, v in lang_descs.items())
+    
+    system = "你是一名SEO专家，精通网页description优化，同时善于提炼内容精华。精通中文、英文、日文、阿拉伯文、西班牙文、法文、德文、印地文。"
     prompt = f"""
-请根据以下主题，写三语版本的 SEO meta description：
+请根据以下主题，写 8 语版本的 SEO meta description：
 
 主题：{theme['theme_full']}
 角色：{theme['character']}
 风格：{theme['style']}
 
 要求：
-- 中文：120-150字，自然流畅，包含核心关键词
-- 英文：150-160字符，SEO标准长度，包含角色名和风格关键词
-- 日文：120-150字，自然，包含核心词
+{lang_list}
+- 阿拉伯文从右到左书写
+- 每种语言要包含角色名和风格相关关键词
 
 输出 JSON 格式：
-{{"zh": "中文description", "en": "English description", "ja": "日本語description"}}
+{{"zh": "...", "en": "...", "ja": "...", "ar": "...", "es": "...", "fr": "...", "de": "...", "hi": "..."}}
 只输出 JSON。
 """
     result = chat(system, prompt, temperature=0.6)
     match = re.search(r'\{.*\}', result, re.DOTALL)
     if match:
-        return json.loads(match.group())
+        descriptions = json.loads(match.group())
+        for lang in LANGUAGES:
+            if lang not in descriptions:
+                descriptions[lang] = descriptions.get("en", "Anime fashion inspiration daily")
+        return descriptions
     raise ValueError(f"Step5 JSON 解析失败: {result}")
 
 
@@ -202,7 +243,7 @@ def step5_generate_description(theme: dict) -> dict:
 # ─────────────────────────────────────────────
 def step6_generate_article(theme: dict) -> dict:
     """
-    输出：{"zh": "HTML正文", "en": "HTML正文", "ja": "HTML正文"}
+    输出：8语版本的 HTML 正文文章
     """
     articles = {}
 
@@ -222,7 +263,7 @@ def step6_generate_article(theme: dict) -> dict:
 - 输出 HTML 格式（只用 <p>, <h3>, <blockquote>, <strong> 标签）
 - 语言生动，有时尚感和文化深度
 """,
-        "en": f"""You are a bilingual columnist with deep knowledge of anime culture and fashion aesthetics.
+        "en": f"""You are a columnist with deep knowledge of anime culture and fashion aesthetics.
 
 Write an engaging English article based on this theme:
 Theme: {theme['theme_full']}
@@ -251,6 +292,81 @@ Requirements:
 - H3見出しとblockquoteで構造を作る
 - HTML形式で出力（<p>, <h3>, <blockquote>, <strong>タグのみ使用）
 - 生き生きとした、スタイリッシュな文体
+""",
+        "ar": f"""أنت كاتب عمود متخصص في ثقافة الأنمي وعلم الجمال في الأزياء.
+
+اكتب مقالاً جذاباً باللغة العربية بناءً على هذا الموضوع:
+الموضوع: {theme['theme_full']}
+الشخصية: {theme['character']}
+نمط الأزياء: {theme['style']}
+
+المتطلبات:
+- 300-500 كلمة
+- زاوية: مجلة أنمي تلتقي بمجلة أزياء
+- الالتزام بالموضوع
+- استخدم عناوين H3 واقتباسات blockquote
+- الإخراج بتنسيق HTML فقط (استخدم فقط <p>, <h3>, <blockquote>, <strong>)
+- الكتابة من اليمين إلى اليسار، حيوية وأنيقة
+""",
+        "es": f"""Eres un columnista experto en cultura anime y estética de la moda.
+
+Escribe un artículo atractivo en español basado en este tema:
+Tema: {theme['theme_full']}
+Personaje: {theme['character']}
+Estilo de moda: {theme['style']}
+
+Requisitos:
+- 300-500 palabras
+- Enfoque: revista anime meets editorial de moda
+- Mantente en el tema
+- Usa subtítulos H3 y blockquotes para estructura
+- Salida en formato HTML (solo <p>, <h3>, <blockquote>, <strong>)
+- Escritura vívida, estilizada y culturalmente perspicaz
+""",
+        "fr": f"""Vous êtes un chroniqueur expert en culture anime et esthétique de la mode.
+
+Rédigez un article captivant en français basé sur ce thème :
+Thème : {theme['theme_full']}
+Personnage : {theme['character']}
+Style vestimentaire : {theme['style']}
+
+Exigences :
+- 300-500 mots
+- Angle : magazine anime rencontre éditorial de mode
+- Restez dans le thème
+- Utilisez des sous-titres H3 et des citations en blockquote
+- Sortie au format HTML uniquement (<p>, <h3>, <blockquote>, <strong>)
+- Écriture vivante, stylée et culturellement perspicace
+""",
+        "de": f"""Sie sind ein Kolumnist mit tiefem Wissen über Anime-Kultur und Modeästhetik.
+
+Schreiben Sie einen ansprechenden Artikel auf Deutsch basierend auf diesem Thema:
+Thema: {theme['theme_full']}
+Charakter: {theme['character']}
+Modestil: {theme['style']}
+
+Anforderungen:
+- 300-500 Wörter
+- Perspektive: Anime-Magazin trifft Mode-Editorial
+- Bleiben Sie beim Thema
+- Verwenden Sie H3-Überschriften und Blockquotes
+- Ausgabe nur im HTML-Format (<p>, <h3>, <blockquote>, <strong>)
+- Lebendige, stilvolle und kulturell tiefgründige Sprache
+""",
+        "hi": f"""आप एक कॉलमनिस्ट हैं जो एनीमे संस्कृति और फैशन एस्थेटिक्स में विशेषज्ञ हैं।
+
+इस विषय पर आधारित एक आकर्षक हिंदी लेख लिखें:
+विषय: {theme['theme_full']}
+पात्र: {theme['character']}
+फैशन स्टाइल: {theme['style']}
+
+आवश्यकताएँ:
+- 300-500 शब्द
+- दृष्टिकोण: एनीमे मैगज़ीन मीट्स फैशन एडिटोरियल
+- विषय से न भटकें
+- H3 उपशीर्षक और blockquote का उपयोग करें
+- HTML फॉर्मेट में आउटपुट (<p>, <h3>, <blockquote>, <strong> टैग्स)
+- जीवंत, स्टाइलिश और सांस्कृतिक रूप से गहरा लेखन
 """
     }
 
@@ -258,7 +374,11 @@ Requirements:
 
     for lang, user_prompt in prompts.items():
         print(f"  → 生成 {lang} 正文...")
-        articles[lang] = chat(system, user_prompt, temperature=0.85)
+        try:
+            articles[lang] = chat(system, user_prompt, temperature=0.85)
+        except Exception as e:
+            print(f"  ⚠️ {lang} 正文生成失败: {e}")
+            articles[lang] = articles.get("en", "<p>Content coming soon.</p>")
 
     return articles
 

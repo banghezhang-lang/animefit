@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent / "generator"))
 from content_pipeline import generate_daily_content
 from site_builder import render_article, render_homepage, save_content_json, GRADIENTS, EMOJIS
 from config import (
-    API_KEY, API_BASE, TEXT_MODEL, IMAGE_MODEL, IMAGE_SIZE,
+    API_KEY, API_BASE, TEXT_MODEL, IMAGE_PROVIDER, IMAGE_SIZE,
     SITE_URL, OUTPUT_DIR, LANGUAGES
 )
 
@@ -39,39 +39,47 @@ except Exception:
 # 图片生成
 # ─────────────────────────────────────────────
 def generate_image(prompt: str, slug: str) -> str | None:
-    """调用 AI 生成图片，返回本地路径"""
-    if not client:
-        print("  ⚠️ OpenAI client 未初始化，跳过图片生成")
-        return None
-    
-    # 检查是否配置了图片生成
-    if IMAGE_MODEL is None:
-        print("  ℹ️ 图片生成已禁用（IMAGE_MODEL = None）")
-        return None
-
+    """调用 AI 生成图片，返回图片 URL（Pollinations.ai 免费方案）"""
     try:
-        print(f"  → 调用 {IMAGE_MODEL} 生成图片...")
-        resp = client.images.generate(
-            model=IMAGE_MODEL,
-            prompt=prompt,
-            size=IMAGE_SIZE,
-            quality="hd",
-            n=1,
-        )
-        img_url = resp.data[0].url
+        from config import IMAGE_PROVIDER
 
-        # 下载图片到本地
-        import requests
-        img_dir = Path(OUTPUT_DIR) / "images"
-        img_dir.mkdir(parents=True, exist_ok=True)
-        img_path = img_dir / f"{slug}.jpg"
+        if IMAGE_PROVIDER == "pollinations":
+            # Pollinations.ai：完全免费，无需 API Key
+            # 直接通过 URL 生成，返回的 URL 就是图片地址
+            from urllib.parse import quote
+            encoded_prompt = quote(prompt)
+            img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&model=flux"
+            print(f"  ✓ Pollinations 图片 URL: {img_url[:80]}...")
+            return img_url
 
-        r = requests.get(img_url, timeout=30)
-        with open(img_path, "wb") as f:
-            f.write(r.content)
+        elif IMAGE_PROVIDER == "siliconflow":
+            # SiliconFlow 备选方案
+            from config import SILICONFLOW_API_KEY, SILICONFLOW_API_BASE, SILICONFLOW_IMAGE_MODEL
+            if not SILICONFLOW_API_KEY:
+                print("  ⚠️ SiliconFlow API Key 未配置，跳过图片生成")
+                return None
+            sf_client = OpenAI(api_key=SILICONFLOW_API_KEY, base_url=SILICONFLOW_API_BASE)
+            resp = sf_client.images.generate(
+                model=SILICONFLOW_IMAGE_MODEL,
+                prompt=prompt,
+                size=IMAGE_SIZE,
+                n=1,
+            )
+            img_url = resp.data[0].url
+            # 下载到本地
+            import requests
+            img_dir = Path(OUTPUT_DIR) / "images"
+            img_dir.mkdir(parents=True, exist_ok=True)
+            img_path = img_dir / f"{slug}.jpg"
+            r = requests.get(img_url, timeout=30)
+            with open(img_path, "wb") as f:
+                f.write(r.content)
+            print(f"  ✓ SiliconFlow 图片已保存: {img_path}")
+            return f"{SITE_URL}/images/{slug}.jpg"
 
-        print(f"  ✓ 图片已保存: {img_path}")
-        return f"{SITE_URL}/images/{slug}.jpg"
+        else:
+            print("  ℹ️ 图片生成已禁用（IMAGE_PROVIDER = none）")
+            return None
 
     except Exception as e:
         print(f"  ⚠️ 图片生成失败: {e}")
@@ -249,18 +257,33 @@ def _get_mock_content() -> dict:
         "tagline": {
             "zh": "「伏特最强的衣品担当」",
             "en": '"The strongest style icon in Academy City"',
-            "ja": "「学園都市最強のファッションアイコン」"
+            "ja": "「学園都市最強のファッションアイコン」",
+            "ar": "\"أيقونة الأناقة الأقوى في مدينة الأكاديمية\"",
+            "es": '"La ícona de estilo más fuerte de Academy City"',
+            "fr": "\"L'icône de style la plus forte d'Academy City\"",
+            "de": '"Das stärkste Stil-Ikon in Academy City"',
+            "hi": '"अकादमी सिटी की सबसे शक्तिशाली स्टाइल आइकन"',
         },
         "tags": ["御坂美琴", "超电磁炮", "中性风", "校服", "电系", "常盘台"],
         "description": {
             "zh": "探索御坂美琴的时尚密码，超电磁炮少女如何用中性帅气风格征服整个学园都市。",
             "en": "Discover Misaka Mikoto's fashion DNA—how the Railgun girl conquers Academy City with cool androgynous style.",
-            "ja": "御坂美琴のファッションコードを探る——超電磁砲少女がクールなアンドロジナスでどのように学園都市を制覇するか。"
+            "ja": "御坂美琴のファッションコードを探る——超電磁砲少女がクールなアンドロジナスでどのように学園都市を制覇するか。",
+            "ar": "اكتشف رموز أزياء ميساكا ميكونتو — كيف فتاة الريلغان تكتسح مدينة الأكاديمية بأناقة أندروجينية رائعة.",
+            "es": "Descubre el código de moda de Misaka Mikoto — cómo la chica Railgun conquista Academy City con estilo andrógino genial.",
+            "fr": "Découvrez le code mode de Misaka Mikoto — comment la fille Railgun conquiert Academy City avec un style androgyne cool.",
+            "de": "Entdecke Misaka Mikotos Mode-DNA — wie das Railgun-Mädchen Academy City mit coolem androgynem Stil erobert.",
+            "hi": "मिसाका मिकोटो का फैशन कोड खोजें — रेलगन लड़की कैसे कूल एंड्रोजिनस स्टाइल से अकादमी सिटी जीतती है।",
         },
         "article_body": {
             "zh": "<p>御坂美琴，这位学园都市的超能力第三位，她的穿搭哲学简单粗暴：<strong>能打就行，但要好看。</strong></p><h3>校服改造实验</h3><p>作为常盘台中学的学生，她的制服改造堪称教科书级别。</p><blockquote>「真正的力量不需要装饰，但对的颜色会让力量更有说服力。」</blockquote>",
             "en": "<p>Misaka Mikoto, Level 5 #3 of Academy City, her fashion philosophy is simple: <strong>functional, but make it fashion.</strong></p><h3>Uniform Reinvention</h3><p>As a Tokiwadai student, her uniform adaptation is textbook cool.</p><blockquote>\"True power needs no ornament—but the right palette makes power more persuasive.\"</blockquote>",
-            "ja": "<p>御坂美琴、学園都市のレベル5第三位、彼女のファッション哲学はシンプル：<strong>機能的に、でもファッショナブルに。</strong></p><h3>制服の再発明</h3><p>常盤台中学の生徒として、彼女の制服アレンジは教科書級のクールさだ。</p><blockquote>「本物の力に装飾は要らない——でも正しいカラーパレットは力をより説得力あるものにする。」</blockquote>"
+            "ja": "<p>御坂美琴、学園都市のレベル5第三位、彼女のファッション哲学はシンプル：<strong>機能的に、でもファッショナブルに。</strong></p><h3>制服の再発明</h3><p>常盤台中学の生徒として、彼女の制服アレンジは教科書級のクールさだ。</p><blockquote>「本物の力に装飾は要らない——でも正しいカラーパレットは力をより説得力あるものにする。」</blockquote>",
+            "ar": "<p>ميساكا ميكونتو، المستوى 5 رقم 3 في مدينة الأكاديمية، فلسفتها في الأزياء بسيطة: <strong>عملية، لكن بشكل أنيق.</strong></p><h3>إعادة اختراع الزي المدرسي</h3><p>كطالبة في توكيواداي، تعديلاتها على الزي المدرسي تُعد مثالاً على البرود.</p><blockquote>\"القوة الحقيقية لا تحتاج زخرفة—لكن الألوان الصحيحة تجعل القوة أكثر إقناعاً.\"</blockquote>",
+            "es": "<p>Misaka Mikoto, Nivel 5 #3 de Academy City, su filosofía de moda es simple: <strong>funcional, pero con estilo.</strong></p><h3>Reinvención del Uniforme</h3><p>Como estudiante de Tokiwadai, su adaptación del uniforme es clásicamente genial.</p><blockquote>\"El verdadero poder no necesita adornos—pero la paleta correcta hace el poder más persuasivo.\"</blockquote>",
+            "fr": "<p>Misaka Mikoto, Niveau 5 #3 d'Academy City, sa philosophie mode est simple : <strong>fonctionnelle, mais avec style.</strong></p><h3>Reinvention de l'Uniforme</h3><p>En tant qu'etudiante a Tokiwadai, son adaptation de l'uniforme est un classique du cool.</p><blockquote>\"Le vrai pouvoir n'a pas besoin d'ornements — mais la bonne palette rend le pouvoir plus persuasif.\"</blockquote>",
+            "de": "<p>Misaka Mikoto, Level 5 #3 von Academy City, ihre Mode-Philosophie ist einfach: <strong>funktional, aber fashionable.</strong></p><h3>Uniform-Neuerfindung</h3><p>Als Tokiwadai-Schulerin ist ihre Uniform-Anpassung lehrbuchmassig cool.</p><blockquote>\"Echte Kraft braucht keinen Schmuck — aber die richtige Palette macht Kraft ueberzeugender.\"</blockquote>",
+            "hi": "<p>मिसाका मिकोटो, अकादमी सिटी की लेवल 5 #3, उनका फैशन दर्शन सरल है: <strong>कार्यात्मक, लेकिन स्टाइलिश.</strong></p><h3>यूनिफॉर्म का पुनर्आविष्कार</h3><p>तोकिवादई की छात्रा के रूप में, उनका यूनिफॉर्म अनुकूलन क्लासिक रूप से कूल है।</p><blockquote>\"सच्ची ताकत को सजावट की ज़रूरत नहीं—लेकिन सही पैलेट ताकत को अधिक प्रभावशाली बनाती है।\"</blockquote>",
         },
         "image_url": None,
     }

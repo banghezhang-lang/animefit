@@ -26,6 +26,12 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
   <link rel="alternate" hreflang="zh" href="{url_zh}">
   <link rel="alternate" hreflang="en" href="{url_en}">
   <link rel="alternate" hreflang="ja" href="{url_ja}">
+  <link rel="alternate" hreflang="ar" href="{url_ar}">
+  <link rel="alternate" hreflang="es" href="{url_es}">
+  <link rel="alternate" hreflang="fr" href="{url_fr}">
+  <link rel="alternate" hreflang="de" href="{url_de}">
+  <link rel="alternate" hreflang="hi" href="{url_hi}">
+  <link rel="alternate" hreflang="x-default" href="{url_en}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,400&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
@@ -124,13 +130,11 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
   }}
   </script>
 </head>
-<body>
+<body dir="{text_dir}">
 <nav>
   <a class="logo" href="/{lang}/">AnimeFit</a>
   <div class="lang-links">
-    <a class="lang-link {zh_active}" href="{url_zh}">中文</a>
-    <a class="lang-link {en_active}" href="{url_en}">EN</a>
-    <a class="lang-link {ja_active}" href="{url_ja}">日本語</a>
+    {nav_links_html}
   </div>
 </nav>
 <main>
@@ -168,18 +172,63 @@ LANG_TEXTS = {
         "back": "← 返回首页",
         "footer": "每日自动生成 · AI 驱动内容 · 多语言发布",
         "html_lang": "zh-CN",
+        "dir": "ltr",
     },
     "en": {
         "back": "← Back to Home",
         "footer": "Auto-generated daily · AI-powered content · Multilingual",
         "html_lang": "en",
+        "dir": "ltr",
     },
     "ja": {
         "back": "← ホームへ戻る",
         "footer": "毎日自動生成 · AIコンテンツ · 多言語対応",
         "html_lang": "ja",
+        "dir": "ltr",
+    },
+    "ar": {
+        "back": "→ العودة إلى الصفحة الرئيسية",
+        "footer": "يُنشأ تلقائيًا يوميًا · محتوى مدعوم بالذكاء الاصطناعي · متعدد اللغات",
+        "html_lang": "ar",
+        "dir": "rtl",
+    },
+    "es": {
+        "back": "← Volver al Inicio",
+        "footer": "Generado diariamente · Contenido con IA · Multilingüe",
+        "html_lang": "es",
+        "dir": "ltr",
+    },
+    "fr": {
+        "back": "← Retour à l'Accueil",
+        "footer": "Généré quotidiennement · Contenu IA · Multilingue",
+        "html_lang": "fr",
+        "dir": "ltr",
+    },
+    "de": {
+        "back": "← Zurück zur Startseite",
+        "footer": "Täglich generiert · KI-gestützter Inhalt · Mehrsprachig",
+        "html_lang": "de",
+        "dir": "ltr",
+    },
+    "hi": {
+        "back": "← होम पेज पर वापस",
+        "footer": "रोज़ स्वचालित रूप से बनाया गया · AI संचालित सामग्री · बहुभाषी",
+        "html_lang": "hi",
+        "dir": "ltr",
     }
 }
+
+# 语言导航栏配置
+LANG_NAV = [
+    ("zh", "中文", "🇨🇳"),
+    ("en", "EN", "🇺🇸"),
+    ("ja", "日本語", "🇯🇵"),
+    ("ar", "العربية", "🇸🇦"),
+    ("es", "Español", "🇪🇸"),
+    ("fr", "Français", "🇫🇷"),
+    ("de", "Deutsch", "🇩🇪"),
+    ("hi", "हिन्दी", "🇮🇳"),
+]
 
 # 随机颜色渐变（根据角色特色选择）
 GRADIENTS = [
@@ -208,11 +257,20 @@ def render_article(content: dict, lang: str, site_url: str, output_dir: str):
     """渲染单个语言版本的文章页面"""
     slug = slug_from_character(content["character"], content["date"])
     
-    url_zh = f"{site_url}/zh/{slug}/"
-    url_en = f"{site_url}/en/{slug}/"
-    url_ja = f"{site_url}/ja/{slug}/"
-    
     texts = LANG_TEXTS[lang]
+    text_dir = texts.get("dir", "ltr")
+    
+    # 生成所有语言版本的 URL
+    lang_urls = {}
+    for lang_code, _, _ in LANG_NAV:
+        lang_urls[lang_code] = f"{site_url}/{lang_code}/{slug}/"
+    
+    # 生成导航链接 HTML
+    nav_links = []
+    for lang_code, label, flag in LANG_NAV:
+        active = "active" if lang_code == lang else ""
+        nav_links.append(f'<a class="lang-link {active}" href="{lang_urls[lang_code]}">{flag} {label}</a>')
+    nav_links_html = "\n    ".join(nav_links)
     
     # 组装 tags HTML
     tags_html = "".join(f'<span class="tag">#{t}</span>' for t in content["tags"])
@@ -228,17 +286,18 @@ def render_article(content: dict, lang: str, site_url: str, output_dir: str):
     
     html = ARTICLE_TEMPLATE.format(
         html_lang=texts["html_lang"],
+        text_dir=text_dir,
         description=content["description"][lang],
         og_title=f"{content['character']} · {content['style']}",
         image_url=image_url,
         page_title=f"{content['character']} · {content['style']}",
         canonical_url=f"{site_url}/{lang}/{slug}/",
-        url_zh=url_zh, url_en=url_en, url_ja=url_ja,
+        url_zh=lang_urls["zh"], url_en=lang_urls["en"], url_ja=lang_urls["ja"],
+        url_ar=lang_urls["ar"], url_es=lang_urls["es"], url_fr=lang_urls["fr"],
+        url_de=lang_urls["de"], url_hi=lang_urls["hi"],
         site_url=site_url, date_iso=content["date_iso"],
         lang=lang,
-        zh_active="active" if lang == "zh" else "",
-        en_active="active" if lang == "en" else "",
-        ja_active="active" if lang == "ja" else "",
+        nav_links_html=nav_links_html,
         back_text=texts["back"],
         img_gradient=gradient,
         emoji=emoji,
@@ -264,13 +323,30 @@ def render_article(content: dict, lang: str, site_url: str, output_dir: str):
 def render_homepage(all_content: list, lang: str, site_url: str, output_dir: str):
     """渲染某语言的首页"""
     texts = LANG_TEXTS[lang]
-    lang_titles = {"zh": "每日动漫时尚", "en": "Daily Anime Fashion", "ja": "毎日アニメファッション"}
+    text_dir = texts.get("dir", "ltr")
+    
+    lang_titles = {
+        "zh": "每日动漫时尚", "en": "Daily Anime Fashion", "ja": "毎日アニメファッション",
+        "ar": "أزياء الأنمي اليومية", "es": "Moda Anime Diaria", "fr": "Mode Anime Quotidienne",
+        "de": "Tägliche Anime-Mode", "hi": "दैनिक एनीमे फैशन"
+    }
     lang_catchphrases = {
         "zh": "AI 驱动的动漫角色穿搭灵感，每日更新",
         "en": "AI-powered anime character fashion inspiration, updated daily",
-        "ja": "AI搭えのアニメキャラクターファッション、毎日更新"
+        "ja": "AI搭えのアニメキャラクターファッション、毎日更新",
+        "ar": "إلهام أزياء شخصيات الأنمي بالذكاء الاصطناعي، يُحدّث يوميًا",
+        "es": "Inspiración de moda anime con IA, actualizada diariamente",
+        "fr": "Inspiration mode anime par IA, mise à jour quotidienne",
+        "de": "KI-gestützte Anime-Modeinspiration, täglich aktualisiert",
+        "hi": "AI संचालित एनीमे फैशन प्रेरणा, रोज़ अपडेट"
     }
-    lang_readmores = {"zh": "阅读全文", "en": "Read More", "ja": "続きを読む"}
+
+    # 生成导航链接 HTML
+    nav_links = []
+    for lang_code, label, flag in LANG_NAV:
+        active = "active" if lang_code == lang else ""
+        nav_links.append(f'<a class="lang-link {active}" href="/{lang_code}/">{flag} {label}</a>')
+    nav_links_html = "\n    ".join(nav_links)
 
     # 组装文章卡片
     cards = ""
@@ -278,6 +354,7 @@ def render_homepage(all_content: list, lang: str, site_url: str, output_dir: str
         slug = slug_from_character(c["character"], c["date"])
         gradient = c.get("gradient", GRADIENTS[hash(c["character"]) % len(GRADIENTS)])
         emoji = c.get("emoji", EMOJIS[hash(c["character"]) % len(EMOJIS)])
+        tagline_text = c.get("tagline", {}).get(lang, "")
         cards += f'''
     <a class="card" href="/{lang}/{slug}/">
       <div class="card-img" style="background:{gradient}"><span class="card-emoji">{emoji}</span></div>
@@ -285,28 +362,31 @@ def render_homepage(all_content: list, lang: str, site_url: str, output_dir: str
         <div class="card-date">{c["date"]}</div>
         <div class="card-title">{c["character"]}</div>
         <div class="card-style">{c["style"]}</div>
-        <div class="card-tagline">{c["tagline"][lang]}</div>
+        <div class="card-tagline">{tagline_text}</div>
       </div>
     </a>'''
 
+    # 首页图片（如果有 AI 生成的图片则使用）
+    has_images = any(c.get("image_url") for c in all_content[-20:])
+
     html = f'''<!DOCTYPE html>
-<html lang="{texts["html_lang"]}">
+<html lang="{texts["html_lang"]}" dir="{text_dir}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="{lang_catchphrases[lang]}">
-  <title>{lang_titles[lang]} · AnimeFit</title>
+  <meta name="description" content="{lang_catchphrases.get(lang, lang_catchphrases['en'])}">
+  <title>{lang_titles.get(lang, lang_titles['en'])} · AnimeFit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,400&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,400&family=Space+Grotesk:wght@300;500;700&family=Noto+Sans+Arabic:wght@300;400;700&family=Noto+Sans+Devanagari:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
     :root {{ --pink:#ff6eb4;--purple:#9b5de5;--cyan:#00f5d4;--dark:#0d0d1a;--card-bg:#16162a;--text:#e8e8f0;--muted:#888899;--border:rgba(255,255,255,0.08); }}
     * {{ margin:0;padding:0;box-sizing:border-box; }}
-    body {{ background:var(--dark);color:var(--text);font-family:'Space Grotesk','Noto Sans SC',sans-serif; }}
+    body {{ background:var(--dark);color:var(--text);font-family:'Space Grotesk','Noto Sans SC','Noto Sans Arabic','Noto Sans Devanagari',sans-serif; }}
     body::before {{ content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(155,93,229,0.12) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(255,110,180,0.08) 0%,transparent 50%);pointer-events:none;z-index:0; }}
     nav {{ position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(13,13,26,0.85);border-bottom:1px solid var(--border);padding:0 5vw;height:64px;display:flex;align-items:center;justify-content:space-between; }}
     .logo {{ font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none; }}
-    .lang-links {{ display:flex;gap:8px; }}
-    .lang-link {{ border:1px solid var(--border);color:var(--muted);padding:4px 12px;border-radius:20px;font-size:0.78rem;text-decoration:none;transition:all 0.2s; }}
+    .lang-links {{ display:flex;gap:6px;flex-wrap:wrap; }}
+    .lang-link {{ border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:20px;font-size:0.72rem;text-decoration:none;transition:all 0.2s;white-space:nowrap; }}
     .lang-link.active,.lang-link:hover {{ border-color:var(--pink);color:var(--pink);background:rgba(255,110,180,0.08); }}
     .hero {{ position:relative;z-index:1;text-align:center;padding:80px 5vw 40px; }}
     .hero h1 {{ font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.5rem);background:linear-gradient(135deg,var(--pink),var(--purple),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px; }}
@@ -314,7 +394,8 @@ def render_homepage(all_content: list, lang: str, site_url: str, output_dir: str
     .grid {{ position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;max-width:1100px;margin:40px auto;padding:0 5vw 80px; }}
     .card {{ background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;text-decoration:none;color:var(--text);transition:transform 0.3s,box-shadow 0.3s; }}
     .card:hover {{ transform:translateY(-4px);box-shadow:0 12px 40px rgba(155,93,229,0.15); }}
-    .card-img {{ height:200px;display:flex;align-items:center;justify-content:center;font-size:4rem; }}
+    .card-img {{ height:200px;display:flex;align-items:center;justify-content:center;font-size:4rem;overflow:hidden; }}
+    .card-img img {{ width:100%;height:100%;object-fit:cover; }}
     .card-body {{ padding:20px; }}
     .card-date {{ font-size:0.72rem;color:var(--cyan);letter-spacing:1.5px;margin-bottom:6px; }}
     .card-title {{ font-size:1.05rem;font-weight:700;margin-bottom:4px; }}
@@ -322,20 +403,19 @@ def render_homepage(all_content: list, lang: str, site_url: str, output_dir: str
     .card-tagline {{ font-size:0.82rem;color:var(--muted);line-height:1.5; }}
     .empty {{ position:relative;z-index:1;text-align:center;padding:80px 5vw;color:var(--muted); }}
     footer {{ position:relative;z-index:1;border-top:1px solid var(--border);padding:32px 5vw;text-align:center;color:var(--muted);font-size:0.8rem; }}
+    @media (max-width:768px) {{ .lang-links {{ gap:4px; }} .lang-link {{ padding:3px 8px;font-size:0.65rem; }} .grid {{ grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); }} }}
   </style>
 </head>
-<body>
+<body dir="{text_dir}">
 <nav>
   <a class="logo" href="/">AnimeFit</a>
   <div class="lang-links">
-    <a class="lang-link {"active" if lang=="zh" else ""}" href="/zh/">中文</a>
-    <a class="lang-link {"active" if lang=="en" else ""}" href="/en/">EN</a>
-    <a class="lang-link {"active" if lang=="ja" else ""}" href="/ja/">日本語</a>
+    {nav_links_html}
   </div>
 </nav>
 <div class="hero">
   <h1>AnimeFit</h1>
-  <p>{lang_catchphrases[lang]}</p>
+  <p>{lang_catchphrases.get(lang, lang_catchphrases['en'])}</p>
 </div>
 {"<div class='grid'>" + cards + "</div>" if all_content else "<div class='empty'><p>🚧 Coming soon...</p></div>"}
 <footer>
