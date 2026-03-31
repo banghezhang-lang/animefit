@@ -22,7 +22,7 @@ if sys.platform == 'win32':
 sys.path.insert(0, str(Path(__file__).parent / "generator"))
 
 from content_pipeline import generate_daily_content
-from site_builder import render_article, save_content_json, GRADIENTS, EMOJIS
+from site_builder import render_article, render_homepage, save_content_json, GRADIENTS, EMOJIS
 from config import (
     API_KEY, API_BASE, TEXT_MODEL, IMAGE_MODEL, IMAGE_SIZE,
     SITE_URL, OUTPUT_DIR, LANGUAGES
@@ -185,6 +185,22 @@ def run_daily_job(
         for lang in LANGUAGES:
             render_article(content, lang, SITE_URL, OUTPUT_DIR)
 
+        # ── 渲染多语言首页 ──
+        print("\n渲染首页...")
+        all_content = _load_all_content()
+        all_content.append(content)
+        for lang in LANGUAGES:
+            render_homepage(all_content, lang, SITE_URL, OUTPUT_DIR)
+
+        # ── 生成根目录重定向（默认跳转中文首页）──
+        root_index = Path(OUTPUT_DIR) / "index.html"
+        root_index.parent.mkdir(parents=True, exist_ok=True)
+        root_index.write_text(
+            '<meta http-equiv="refresh" content="0;url=/zh/">',
+            encoding="utf-8"
+        )
+        print(f"  ✓ 根目录重定向: {root_index}")
+
         # ── 保存 JSON 数据 ──
         save_content_json(content, OUTPUT_DIR)
 
@@ -205,6 +221,20 @@ def run_daily_job(
         print(f"\n{log_prefix} ❌ 任务失败: {e}")
         traceback.print_exc()
         return None
+
+
+def _load_all_content() -> list:
+    """加载已有的 JSON 内容数据（用于首页聚合展示）"""
+    data_dir = Path(OUTPUT_DIR) / "data"
+    all_content = []
+    if data_dir.exists():
+        for f in sorted(data_dir.glob("*.json")):
+            try:
+                with open(f, "r", encoding="utf-8") as fp:
+                    all_content.append(json.load(fp))
+            except Exception:
+                pass
+    return all_content
 
 
 def _get_mock_content() -> dict:

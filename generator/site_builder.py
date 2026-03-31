@@ -263,12 +263,92 @@ def render_article(content: dict, lang: str, site_url: str, output_dir: str):
 
 def render_homepage(all_content: list, lang: str, site_url: str, output_dir: str):
     """渲染某语言的首页"""
-    # 首页模板（精简版，引用主 index.html 的样式即可）
-    # 实际项目中这里生成完整静态首页 HTML
+    texts = LANG_TEXTS[lang]
+    lang_titles = {"zh": "每日动漫时尚", "en": "Daily Anime Fashion", "ja": "毎日アニメファッション"}
+    lang_catchphrases = {
+        "zh": "AI 驱动的动漫角色穿搭灵感，每日更新",
+        "en": "AI-powered anime character fashion inspiration, updated daily",
+        "ja": "AI搭えのアニメキャラクターファッション、毎日更新"
+    }
+    lang_readmores = {"zh": "阅读全文", "en": "Read More", "ja": "続きを読む"}
+
+    # 组装文章卡片
+    cards = ""
+    for c in reversed(all_content[-20:]):  # 最新 20 篇
+        slug = slug_from_character(c["character"], c["date"])
+        gradient = c.get("gradient", GRADIENTS[hash(c["character"]) % len(GRADIENTS)])
+        emoji = c.get("emoji", EMOJIS[hash(c["character"]) % len(EMOJIS)])
+        cards += f'''
+    <a class="card" href="/{lang}/{slug}/">
+      <div class="card-img" style="background:{gradient}"><span class="card-emoji">{emoji}</span></div>
+      <div class="card-body">
+        <div class="card-date">{c["date"]}</div>
+        <div class="card-title">{c["character"]}</div>
+        <div class="card-style">{c["style"]}</div>
+        <div class="card-tagline">{c["tagline"][lang]}</div>
+      </div>
+    </a>'''
+
+    html = f'''<!DOCTYPE html>
+<html lang="{texts["html_lang"]}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{lang_catchphrases[lang]}">
+  <title>{lang_titles[lang]} · AnimeFit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,400&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {{ --pink:#ff6eb4;--purple:#9b5de5;--cyan:#00f5d4;--dark:#0d0d1a;--card-bg:#16162a;--text:#e8e8f0;--muted:#888899;--border:rgba(255,255,255,0.08); }}
+    * {{ margin:0;padding:0;box-sizing:border-box; }}
+    body {{ background:var(--dark);color:var(--text);font-family:'Space Grotesk','Noto Sans SC',sans-serif; }}
+    body::before {{ content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(155,93,229,0.12) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(255,110,180,0.08) 0%,transparent 50%);pointer-events:none;z-index:0; }}
+    nav {{ position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(13,13,26,0.85);border-bottom:1px solid var(--border);padding:0 5vw;height:64px;display:flex;align-items:center;justify-content:space-between; }}
+    .logo {{ font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none; }}
+    .lang-links {{ display:flex;gap:8px; }}
+    .lang-link {{ border:1px solid var(--border);color:var(--muted);padding:4px 12px;border-radius:20px;font-size:0.78rem;text-decoration:none;transition:all 0.2s; }}
+    .lang-link.active,.lang-link:hover {{ border-color:var(--pink);color:var(--pink);background:rgba(255,110,180,0.08); }}
+    .hero {{ position:relative;z-index:1;text-align:center;padding:80px 5vw 40px; }}
+    .hero h1 {{ font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.5rem);background:linear-gradient(135deg,var(--pink),var(--purple),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px; }}
+    .hero p {{ color:var(--muted);font-size:1.05rem;max-width:500px;margin:0 auto; }}
+    .grid {{ position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;max-width:1100px;margin:40px auto;padding:0 5vw 80px; }}
+    .card {{ background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;text-decoration:none;color:var(--text);transition:transform 0.3s,box-shadow 0.3s; }}
+    .card:hover {{ transform:translateY(-4px);box-shadow:0 12px 40px rgba(155,93,229,0.15); }}
+    .card-img {{ height:200px;display:flex;align-items:center;justify-content:center;font-size:4rem; }}
+    .card-body {{ padding:20px; }}
+    .card-date {{ font-size:0.72rem;color:var(--cyan);letter-spacing:1.5px;margin-bottom:6px; }}
+    .card-title {{ font-size:1.05rem;font-weight:700;margin-bottom:4px; }}
+    .card-style {{ font-size:0.8rem;color:var(--purple);margin-bottom:8px; }}
+    .card-tagline {{ font-size:0.82rem;color:var(--muted);line-height:1.5; }}
+    .empty {{ position:relative;z-index:1;text-align:center;padding:80px 5vw;color:var(--muted); }}
+    footer {{ position:relative;z-index:1;border-top:1px solid var(--border);padding:32px 5vw;text-align:center;color:var(--muted);font-size:0.8rem; }}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">AnimeFit</a>
+  <div class="lang-links">
+    <a class="lang-link {"active" if lang=="zh" else ""}" href="/zh/">中文</a>
+    <a class="lang-link {"active" if lang=="en" else ""}" href="/en/">EN</a>
+    <a class="lang-link {"active" if lang=="ja" else ""}" href="/ja/">日本語</a>
+  </div>
+</nav>
+<div class="hero">
+  <h1>AnimeFit</h1>
+  <p>{lang_catchphrases[lang]}</p>
+</div>
+{"<div class='grid'>" + cards + "</div>" if all_content else "<div class='empty'><p>🚧 Coming soon...</p></div>"}
+<footer>
+  <p style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:8px;background:linear-gradient(135deg,#ff6eb4,#9b5de5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">AnimeFit</p>
+  <p>{texts["footer"]}</p>
+  <p style="margin-top:10px;opacity:0.4;font-size:0.72rem;">© {datetime.now().year} AnimeFit · Powered by AI</p>
+</footer>
+</body>
+</html>'''
+
     out_path = Path(output_dir) / lang / "index.html"
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    # 这里简化输出，完整项目中渲染完整首页
-    out_path.write_text(f"<!-- {lang} homepage - {len(all_content)} posts -->", encoding="utf-8")
+    out_path.write_text(html, encoding="utf-8")
     print(f"  ✓ 首页输出: {out_path}")
 
 
