@@ -39,18 +39,41 @@ except Exception:
 # 图片生成
 # ─────────────────────────────────────────────
 def generate_image(prompt: str, slug: str) -> str | None:
-    """调用 AI 生成图片，返回图片 URL（Pollinations.ai 免费方案）"""
+    """
+    调用 AI 生成图片，下载到本地 output/images/ 目录。
+    返回本地图片路径（如 /images/xxx.png），用于静态页面引用。
+    """
     try:
+        import requests
         from config import IMAGE_PROVIDER
+
+        img_dir = Path(OUTPUT_DIR) / "images"
+        img_dir.mkdir(parents=True, exist_ok=True)
+        img_path = img_dir / f"{slug}.png"
 
         if IMAGE_PROVIDER == "pollinations":
             # Pollinations.ai：完全免费，无需 API Key
-            # 直接通过 URL 生成，返回的 URL 就是图片地址
+            # 先请求 URL 触发生成，再用 stream 下载完成的图片
             from urllib.parse import quote
             encoded_prompt = quote(prompt)
             img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&model=flux"
-            print(f"  ✓ Pollinations 图片 URL: {img_url[:80]}...")
-            return img_url
+            print(f"  → 请求 Pollinations 生成图片...")
+            # 先发 HEAD 请求触发生成（避免大图占用流量）
+            requests.head(img_url, timeout=10)
+            # 等 5 秒让服务器生成
+            import time
+            time.sleep(5)
+            # 再下载图片
+            resp = requests.get(img_url, timeout=60, stream=True)
+            if resp.status_code == 200:
+                with open(img_path, "wb") as f:
+                    for chunk in resp.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                local_path = f"{SITE_URL}/images/{slug}.png"
+                print(f"  ✓ 图片已下载: {img_path.name}")
+                return local_path
+            print(f"  ⚠️ Pollinations 请求失败: {resp.status_code}")
+            return None
 
         elif IMAGE_PROVIDER == "siliconflow":
             # SiliconFlow 备选方案
@@ -285,7 +308,7 @@ def _get_mock_content() -> dict:
             "de": "<p>Misaka Mikoto, Level 5 #3 von Academy City, ihre Mode-Philosophie ist einfach: <strong>funktional, aber fashionable.</strong></p><h3>Uniform-Neuerfindung</h3><p>Als Tokiwadai-Schulerin ist ihre Uniform-Anpassung lehrbuchmassig cool.</p><blockquote>\"Echte Kraft braucht keinen Schmuck — aber die richtige Palette macht Kraft ueberzeugender.\"</blockquote>",
             "hi": "<p>मिसाका मिकोटो, अकादमी सिटी की लेवल 5 #3, उनका फैशन दर्शन सरल है: <strong>कार्यात्मक, लेकिन स्टाइलिश.</strong></p><h3>यूनिफॉर्म का पुनर्आविष्कार</h3><p>तोकिवादई की छात्रा के रूप में, उनका यूनिफॉर्म अनुकूलन क्लासिक रूप से कूल है।</p><blockquote>\"सच्ची ताकत को सजावट की ज़रूरत नहीं—लेकिन सही पैलेट ताकत को अधिक प्रभावशाली बनाती है।\"</blockquote>",
         },
-        "image_url": None,
+        "image_url": "/images/mock-character.png",
     }
 
 
