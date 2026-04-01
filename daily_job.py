@@ -45,6 +45,7 @@ def generate_image(prompt: str, slug: str) -> str | None:
     """
     try:
         import requests
+        import time
         from config import IMAGE_PROVIDER
 
         img_dir = Path(OUTPUT_DIR) / "images"
@@ -58,21 +59,47 @@ def generate_image(prompt: str, slug: str) -> str | None:
             encoded_prompt = quote(prompt)
             img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&model=flux"
             print(f"  → 请求 Pollinations 生成图片...")
-            # 先发 HEAD 请求触发生成（避免大图占用流量）
-            requests.head(img_url, timeout=10)
-            # 等 5 秒让服务器生成
-            import time
-            time.sleep(5)
-            # 再下载图片
-            resp = requests.get(img_url, timeout=60, stream=True)
-            if resp.status_code == 200:
-                with open(img_path, "wb") as f:
-                    for chunk in resp.iter_content(chunk_size=8192):
-                        f.write(chunk)
-                local_path = f"{SITE_URL}/images/{slug}.png"
-                print(f"  ✓ 图片已下载: {img_path.name}")
-                return local_path
-            print(f"  ⚠️ Pollinations 请求失败: {resp.status_code}")
+            print(f"  → URL: {img_url[:100]}...")
+            
+            # 尝试多次下载（Pollinations 首次访问会触发生成）
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    print(f"  → 尝试下载 (第 {attempt + 1}/{max_retries} 次)...")
+                    resp = requests.get(img_url, timeout=30, stream=True)
+                    if resp.status_code == 200:
+                        # 检查是否是占位图（内容太小）
+                        content_length = resp.headers.get('content-length')
+                        if content_length and int(content_length) < 10000:
+                            print(f"  → 图片还在生成中，等待 10 秒...")
+                            time.sleep(10)
+                            continue
+                        
+                        with open(img_path, "wb") as f:
+                            for chunk in resp.iter_content(chunk_size=8192):
+                                f.write(chunk)
+                        
+                        # 验证下载的文件大小
+                        file_size = img_path.stat().st_size
+                        if file_size > 10000:  # 大于 10KB 认为是正常图片
+                            local_path = f"{SITE_URL}/images/{slug}.png"
+                            print(f"  ✓ 图片已下载: {img_path.name} ({file_size / 1024:.1f} KB)")
+                            return local_path
+                        else:
+                            print(f"  → 文件太小 ({file_size} bytes)，可能是占位图，重试...")
+                            time.sleep(10)
+                            continue
+                    else:
+                        print(f"  → HTTP {resp.status_code}，等待后重试...")
+                        time.sleep(10)
+                except requests.exceptions.Timeout:
+                    print(f"  → 请求超时，等待后重试...")
+                    time.sleep(10)
+                except Exception as e:
+                    print(f"  → 下载出错: {e}，等待后重试...")
+                    time.sleep(10)
+            
+            print(f"  ⚠️ Pollinations 多次重试失败，跳过图片生成")
             return None
 
         elif IMAGE_PROVIDER == "siliconflow":
@@ -90,7 +117,6 @@ def generate_image(prompt: str, slug: str) -> str | None:
             )
             img_url = resp.data[0].url
             # 下载到本地
-            import requests
             img_dir = Path(OUTPUT_DIR) / "images"
             img_dir.mkdir(parents=True, exist_ok=True)
             img_path = img_dir / f"{slug}.jpg"
