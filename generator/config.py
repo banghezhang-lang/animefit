@@ -16,7 +16,7 @@ POLLINATIONS_MODEL = "flux"  # flux | turbo
 # SiliconFlow 配置
 SILICONFLOW_API_KEY = "sk-fwvzzktzkupnvbgedylylqgbjcjdevbcsoncucqtmsemkxcd"
 SILICONFLOW_API_BASE = "https://api.siliconflow.cn/v1"
-SILICONFLOW_IMAGE_MODEL = "black-forest-labs/FLUX.1-schnell"
+SILICONFLOW_IMAGE_MODEL = "Qwen/Qwen-Image"
 
 IMAGE_SIZE = "1024x1024"
 

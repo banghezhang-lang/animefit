@@ -25,5 +25,8 @@ Thumbs.db
 .env
 .env.local
 
-# 但保留 output 目录用于部署
+# 但保留 output 目录用于部署（排除图片，图片由构建时生成）
 !output/
+output/images/
+output/*.png
+output/*.jpg
