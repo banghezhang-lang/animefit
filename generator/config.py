@@ -9,15 +9,14 @@ API_BASE = "https://api.deepseek.com/v1"  # DeepSeek API 地址
 TEXT_MODEL = "deepseek-chat"  # DeepSeek 文本模型（V3）
 
 # ── 图片生成配置 ──
-# Pollinations.ai：完全免费，无需 API Key
-# 直接通过 URL 生成图片，图片 URL 格式：https://image.pollinations.ai/prompt/{encoded_prompt}
-IMAGE_PROVIDER = "pollinations"  # "pollinations" | "siliconflow" | "none"
+# SiliconFlow 方案（国内可访问，注册送免费额度 https://cloud.siliconflow.cn）
+IMAGE_PROVIDER = "siliconflow"  # "pollinations" | "siliconflow" | "none"
 POLLINATIONS_MODEL = "flux"  # flux | turbo
 
-# SiliconFlow 备选方案（注册后免费额度，画质更高）
-# SILICONFLOW_API_KEY = "sk-xxx"  # 注册 https://cloud.siliconflow.cn 获取
-# SILICONFLOW_API_BASE = "https://api.siliconflow.cn/v1"
-# SILICONFLOW_IMAGE_MODEL = "black-forest-labs/FLUX.1-schnell"
+# SiliconFlow 配置
+SILICONFLOW_API_KEY = "sk-fwvzzktzkupnvbgedylylqgbjcjdevbcsoncucqtmsemkxcd"
+SILICONFLOW_API_BASE = "https://api.siliconflow.cn/v1"
+SILICONFLOW_IMAGE_MODEL = "black-forest-labs/FLUX.1-schnell"
 
 IMAGE_SIZE = "1024x1024"
 

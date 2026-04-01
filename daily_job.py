@@ -119,12 +119,13 @@ def generate_image(prompt: str, slug: str) -> str | None:
             # 下载到本地
             img_dir = Path(OUTPUT_DIR) / "images"
             img_dir.mkdir(parents=True, exist_ok=True)
-            img_path = img_dir / f"{slug}.jpg"
+            img_path = img_dir / f"{slug}.png"
             r = requests.get(img_url, timeout=30)
             with open(img_path, "wb") as f:
                 f.write(r.content)
-            print(f"  ✓ SiliconFlow 图片已保存: {img_path}")
-            return f"{SITE_URL}/images/{slug}.jpg"
+            file_size = img_path.stat().st_size
+            print(f"  ✓ SiliconFlow 图片已保存: {img_path.name} ({file_size / 1024:.1f} KB)")
+            return f"{SITE_URL}/images/{slug}.png"
 
         else:
             print("  ℹ️ 图片生成已禁用（IMAGE_PROVIDER = none）")
