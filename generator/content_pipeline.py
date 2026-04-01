@@ -70,14 +70,14 @@ def step1_generate_theme(character: str = None, style: str = None) -> dict:
 - 穿搭风格：{style}
 
 要求：
-1. 简述该角色的外形特征和性格气质（2-3句话）
-2. 描述这套穿搭的核心搭配逻辑（3-4句话），融合角色特点和时尚风格
+1. 简述该角色的外形特征和性格气质（2-3句话），包含发色、发型、眼睛颜色、体型等具体外貌描述
+2. 描述这套穿搭的核心搭配逻辑（3-4句话），要具体说明服装单品、颜色、材质、配饰等可视化细节，融合角色特点和时尚风格
 3. 输出为 JSON 格式：
 {{
   "character": "角色名（带作品名）",
   "style": "穿搭风格",
-  "character_desc": "角色特征描述",
-  "outfit_desc": "穿搭描述",
+  "character_desc": "角色外貌特征描述（含发色、眼色等具体视觉细节）",
+  "outfit_desc": "穿搭描述（含具体服装单品、颜色、材质、配饰等可视化细节）",
   "theme_full": "完整主题内容（角色特征 + 穿搭描述 合并）"
 }}
 只输出 JSON，不要其他文字。
@@ -96,22 +96,26 @@ def step1_generate_theme(character: str = None, style: str = None) -> dict:
 def step2_generate_image_prompt(theme: dict) -> str:
     """
     输入：Step1 主题 dict
-    输出：英文 AI 绘图 prompt 字符串
+    输出：英文 AI 绘图 prompt 字符串（与文章主题强关联）
     """
-    system = "You are an expert AI art director specializing in anime fashion editorial photography. Create concise, precise image prompts."
+    system = "You are an expert AI art director specializing in anime fashion editorial photography. Create concise, precise image prompts that visually represent the article's specific theme."
     prompt = f"""
 Based on the following anime character fashion theme, create a single English image generation prompt.
+The image must visually tell the SAME story as the article — not just show the character, but capture the specific outfit, scene, and mood described in the theme.
 
 Theme: {theme['theme_full']}
 Character: {theme['character']}
 Style: {theme['style']}
+Character description: {theme.get('character_desc', '')}
+Outfit description: {theme.get('outfit_desc', '')}
 
 Requirements:
 - English only
-- Under 100 words
-- Include: character appearance, outfit details, color palette, art style, mood/atmosphere
-- Art style should be: anime-meets-fashion-editorial, high quality illustration
-- End with technical quality tags like: highly detailed, fashion magazine cover, vibrant colors
+- Under 120 words
+- MUST include: specific outfit items/colors from the outfit_desc, the scene/setting that matches the article theme, character's pose and expression that reflects their personality
+- Art style: anime-meets-fashion-editorial, high quality illustration
+- The image should look like it could be the cover photo of the article
+- End with: highly detailed, fashion magazine editorial, vibrant colors, 4k
 
 Output only the prompt text, nothing else.
 """

@@ -253,7 +253,7 @@ def _get_mock_content() -> dict:
         "character": "御坂美琴（《某科学的超电磁炮》）",
         "style": "电系帅气中性风",
         "theme": {"theme_full": "mock theme"},
-        "image_prompt": "Misaka Mikoto, anime girl with short brown hair, school uniform with skirt, electric sparks, Tokiwadai school setting, cool androgynous fashion editorial, cyberpunk lighting, highly detailed",
+        "image_prompt": "Misaka Mikoto, anime girl with short spiky brown hair and copper-brown eyes, wearing Tokiwadai white blouse with navy pleated skirt, adding a deconstructed oversized blazer in electric blue, fingerless tactical gloves, coin held between fingers crackling with electricity, standing in Academy City arcade-lit street at dusk, cool androgynous fashion editorial pose, anime-meets-fashion-editorial, highly detailed, fashion magazine editorial, vibrant colors, 4k",
         "tagline": {
             "zh": "「伏特最强的衣品担当」",
             "en": '"The strongest style icon in Academy City"',
