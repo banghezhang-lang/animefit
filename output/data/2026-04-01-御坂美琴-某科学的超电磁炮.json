@@ -6,7 +6,7 @@
   "theme": {
     "theme_full": "mock theme"
   },
-  "image_prompt": "Misaka Mikoto, anime girl with short brown hair, school uniform with skirt, electric sparks, Tokiwadai school setting, cool androgynous fashion editorial, cyberpunk lighting, highly detailed",
+  "image_prompt": "Misaka Mikoto, anime girl with short spiky brown hair and copper-brown eyes, wearing Tokiwadai white blouse with navy pleated skirt, adding a deconstructed oversized blazer in electric blue, fingerless tactical gloves, coin held between fingers crackling with electricity, standing in Academy City arcade-lit street at dusk, cool androgynous fashion editorial pose, anime-meets-fashion-editorial, highly detailed, fashion magazine editorial, vibrant colors, 4k",
   "tagline": {
     "zh": "「伏特最强的衣品担当」",
     "en": "\"The strongest style icon in Academy City\"",
@@ -45,7 +45,7 @@
     "de": "<p>Misaka Mikoto, Level 5 #3 von Academy City, ihre Mode-Philosophie ist einfach: <strong>funktional, aber fashionable.</strong></p><h3>Uniform-Neuerfindung</h3><p>Als Tokiwadai-Schulerin ist ihre Uniform-Anpassung lehrbuchmassig cool.</p><blockquote>\"Echte Kraft braucht keinen Schmuck — aber die richtige Palette macht Kraft ueberzeugender.\"</blockquote>",
     "hi": "<p>मिसाका मिकोटो, अकादमी सिटी की लेवल 5 #3, उनका फैशन दर्शन सरल है: <strong>कार्यात्मक, लेकिन स्टाइलिश.</strong></p><h3>यूनिफॉर्म का पुनर्आविष्कार</h3><p>तोकिवादई की छात्रा के रूप में, उनका यूनिफॉर्म अनुकूलन क्लासिक रूप से कूल है।</p><blockquote>\"सच्ची ताकत को सजावट की ज़रूरत नहीं—लेकिन सही पैलेट ताकत को अधिक प्रभावशाली बनाती है।\"</blockquote>"
   },
-  "image_url": null,
-  "gradient": "linear-gradient(135deg, #2d0a3e, #4a1175, #0d2040)",
-  "emoji": "✨"
+  "image_url": "/images/mock-character.png",
+  "gradient": "linear-gradient(135deg, #0a2a3a, #0d3d4a, #1a0a40)",
+  "emoji": "🍀"
 }

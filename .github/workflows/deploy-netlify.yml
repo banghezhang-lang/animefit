@@ -1,58 +1,25 @@
-# AnimeFit 定时自动构建
-# 每天北京时间 09:00 自动生成内容并通过 Netlify Build Hook 触发部署
-# 也支持推送到 master 时自动部署 + 手动触发
+# AnimeFit 静态部署
+# 本地运行 daily_job.py --now 生成内容+图片后推送
+# GitHub Actions 只负责将 output 目录部署到 Netlify
 
-name: AnimeFit Daily Build
+name: AnimeFit Deploy
 
 on:
-  # 定时触发：每天 01:00 UTC（北京时间 09:00）
-  schedule:
-    - cron: '0 1 * * *'
-  
-  # 手动触发（GitHub 仓库 Actions 页面点击 Run workflow）
-  workflow_dispatch:
-    inputs:
-      character:
-        description: '指定角色（可选，留空随机）'
-        required: false
-        default: ''
-      style:
-        description: '指定风格（可选，留空随机）'
-        required: false
-        default: ''
-
-  # 推送到 master 分支时触发
+  # 推送到 master 分支时触发（本地生成内容后自动部署）
   push:
     branches: [master]
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
+
+  # 手动触发（纯部署，不生成内容）
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
-      - name: Generate daily content
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-        run: |
-          python daily_job.py --now
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3.0
@@ -60,7 +27,7 @@ jobs:
           publish-dir: './output'
           production-branch: master
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Auto deploy ${{ github.event_name }} @ $(date +'%Y-%m-%d %H:%M')"
+          deploy-message: "Deploy @ $(date +'%Y-%m-%d %H:%M')"
           enable-pull-request-comment: false
           enable-commit-comment: false
           overwrites-pull-request-comment: false
