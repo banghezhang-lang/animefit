@@ -22,7 +22,7 @@ IMAGE_SIZE = "1024x1024"
 
 # ── 网站配置 ──
 SITE_TITLE = "AnimeFit · 每日动漫时尚"
-SITE_URL = "https://jolly-puffpuff-cb278b.netlify.app"  # 实际域名
+SITE_URL = "https://dongmanchuanda.netlify.app"  # 实际域名
 OUTPUT_DIR = "./output"  # 静态文件输出目录
 POSTS_PER_PAGE = 9  # 首页展示文章数
 
