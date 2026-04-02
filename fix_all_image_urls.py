@@ -25,7 +25,7 @@ for f in sorted(data_dir.glob('*.json')):
             c['image_url'] = new_url
             with open(f, 'w', encoding='utf-8') as fp:
                 json.dump(c, fp, ensure_ascii=False, indent=2)
-            fixed.append(c['character'] + ' (' + c['date'] + '): ' + old_url + ' -> ' + new_url)
+            fixed.append(c['character'] + ' (' + c['date'] + '): ' + str(old_url) + ' -> ' + new_url)
     else:
         print('NO IMAGE FILE:', c['character'], '(slug=' + slug + ')')
 
