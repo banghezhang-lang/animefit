@@ -112,6 +112,7 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
     .article-body p {{ margin-bottom: 20px; }}
     .article-body h3 {{ font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--text); margin: 32px 0 16px; }}
     .article-body blockquote {{ border-left: 3px solid var(--pink); padding-left: 20px; color: var(--muted); font-style: italic; margin: 24px 0; }}
+    .giscus-section {{ padding: 0 5vw 40px; max-width: 860px; margin: 0 auto; }}
     footer {{ position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 5vw; text-align: center; color: var(--muted); font-size: 0.8rem; }}
     ::-webkit-scrollbar {{ width: 6px; }}
     ::-webkit-scrollbar-track {{ background: var(--dark); }}
@@ -157,6 +158,9 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
   <div class="article-body">
     {article_body}
   </div>
+  <section class="giscus-section">
+    <div class="giscus"></div>
+  </section>
 </main>
 <footer>
   <p style="font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:8px; background:linear-gradient(135deg,#ff6eb4,#9b5de5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">AnimeFit</p>
@@ -165,6 +169,24 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
 </footer>
 </body>
 </html>'''
+
+# Giscus 配置
+GISCUS_SCRIPT = '''
+<script src="https://giscus.app/client.js"
+        data-repo="banghezhang-lang/animefit"
+        data-repo-id="R_kgDOR1-3jg"
+        data-category="Comments"
+        data-category-id="DIC_kwDOR1-3js4C53na"
+        data-mapping="title"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>'''
 
 # 语言相关文本
 LANG_TEXTS = {
@@ -346,10 +368,11 @@ def render_article(content: dict, lang: str, site_url: str, output_dir: str):
         year=datetime.now().year,
     )
     
-    # 写入文件
+    # 写入文件（注入 giscus 评论）
+    html_with_comments = html.replace("</body>", GISCUS_SCRIPT.strip() + "\n</body>")
     out_path = Path(output_dir) / lang / slug / "index.html"
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(html, encoding="utf-8")
+    out_path.write_text(html_with_comments, encoding="utf-8")
     print(f"  ✓ 输出: {out_path}")
     return slug
 
