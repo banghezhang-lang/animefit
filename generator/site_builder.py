@@ -150,10 +150,6 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
   <h1>{title}</h1>
   <p class="tagline">{tagline}</p>
   <div class="tags">{tags_html}</div>
-  <div class="prompt-box">
-    <div class="prompt-label">✦ AI Image Prompt</div>
-    <div class="prompt-text">{image_prompt}</div>
-  </div>
   {image_html}
   <div class="article-body">
     {article_body}
