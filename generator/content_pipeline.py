@@ -76,6 +76,7 @@ def step1_generate_theme(character: str = None, style: str = None) -> dict:
 {{
   "character": "角色名（带作品名）",
   "style": "穿搭风格",
+  "slug_en": "character-name-in-english-kebab-case",
   "character_desc": "角色外貌特征描述（含发色、眼色等具体视觉细节）",
   "outfit_desc": "穿搭描述（含具体服装单品、颜色、材质、配饰等可视化细节）",
   "theme_full": "完整主题内容（角色特征 + 穿搭描述 合并）"

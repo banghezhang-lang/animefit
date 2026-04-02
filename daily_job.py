@@ -230,7 +230,7 @@ def run_daily_job(
 
         # 从 site_builder 导入 slug 函数
         from site_builder import slug_from_character
-        slug = slug_from_character(content["character"], content["date"])
+        slug = slug_from_character(content["character"], content["date"], content.get("slug_en"))
 
         # ── 图片生成 ──
         if not dry_run:

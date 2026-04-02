@@ -243,19 +243,53 @@ GRADIENTS = [
 EMOJIS = ["🌸", "⚡", "🎀", "🍀", "✨", "🌙", "🔮", "💫", "🦋", "🌺"]
 
 
-def slug_from_character(character: str, date_str: str) -> str:
-    """生成 URL slug"""
+def slug_from_character(character: str, date_str: str, slug_en: str = None) -> str:
+    """
+    生成 URL slug（纯 ASCII，避免中文路径在 Netlify 上出问题）
+    优先使用 LLM 生成的 slug_en 字段；否则从 character 提取 ASCII 部分，
+    如果全是中文则用 md5 前 8 位。
+    """
     import re
-    # 提取括号前的名字
-    name = re.sub(r'[（(《》）)、，。,.·\s]', '-', character)
-    name = re.sub(r'-+', '-', name).strip('-').lower()
+    import hashlib
+
     date_clean = date_str.replace('.', '-')
+
+    if slug_en:
+        # 清理 slug_en，确保纯 ASCII 小写短横线
+        name = re.sub(r'[^a-z0-9-]', '-', slug_en.lower())
+        name = re.sub(r'-+', '-', name).strip('-')
+        return f"{date_clean}-{name[:40]}"
+
+    # 兜底：从 character 提取 ASCII 字符
+    name = re.sub(r'[（(《》）)、，。,.·\s]', '-', character)
+    name = re.sub(r'[^\x00-\x7F]', '', name)
+    name = re.sub(r'-+', '-', name).strip('-').lower()
+    if not name:
+        name = hashlib.md5(character.encode('utf-8')).hexdigest()[:8]
     return f"{date_clean}-{name[:30]}"
+
+
+def _get_ml(content: dict, field: str, lang: str, fallback_langs=("zh", "en", "ja")) -> str:
+    """从多语言字段取值，缺失时自动降级到其它语言，最终返回空字符串。"""
+    val = content.get(field, {})
+    if isinstance(val, dict):
+        if lang in val:
+            return val[lang]
+        for fb in fallback_langs:
+            if fb in val:
+                return val[fb]
+        # 取第一个可用值
+        for v in val.values():
+            if v:
+                return v
+    elif isinstance(val, str):
+        return val
+    return ""
 
 
 def render_article(content: dict, lang: str, site_url: str, output_dir: str):
     """渲染单个语言版本的文章页面"""
-    slug = slug_from_character(content["character"], content["date"])
+    slug = slug_from_character(content["character"], content["date"], content.get("slug_en"))
     
     texts = LANG_TEXTS[lang]
     text_dir = texts.get("dir", "ltr")
@@ -287,7 +321,7 @@ def render_article(content: dict, lang: str, site_url: str, output_dir: str):
     html = ARTICLE_TEMPLATE.format(
         html_lang=texts["html_lang"],
         text_dir=text_dir,
-        description=content["description"][lang],
+        description=_get_ml(content, "description", lang),
         og_title=f"{content['character']} · {content['style']}",
         image_url=image_url,
         page_title=f"{content['character']} · {content['style']}",
@@ -303,11 +337,11 @@ def render_article(content: dict, lang: str, site_url: str, output_dir: str):
         emoji=emoji,
         date_display=content["date"],
         title=content["character"] + " · " + content["style"],
-        tagline=content["tagline"][lang],
+        tagline=_get_ml(content, "tagline", lang),
         tags_html=tags_html,
         image_prompt=content["image_prompt"],
         image_html=image_html,
-        article_body=content["article_body"][lang],
+        article_body=_get_ml(content, "article_body", lang),
         footer_text=texts["footer"],
         year=datetime.now().year,
     )
@@ -351,7 +385,7 @@ def render_homepage(all_content: list, lang: str, site_url: str, output_dir: str
     # 组装文章卡片
     cards = ""
     for c in reversed(all_content[-20:]):  # 最新 20 篇
-        slug = slug_from_character(c["character"], c["date"])
+        slug = slug_from_character(c["character"], c["date"], c.get("slug_en"))
         gradient = c.get("gradient", GRADIENTS[hash(c["character"]) % len(GRADIENTS)])
         emoji = c.get("emoji", EMOJIS[hash(c["character"]) % len(EMOJIS)])
         tagline_text = c.get("tagline", {}).get(lang, "")
@@ -436,7 +470,7 @@ def save_content_json(content: dict, output_dir: str):
     """保存内容数据到 JSON（供前端动态加载或备份）"""
     data_dir = Path(output_dir) / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
-    slug = slug_from_character(content["character"], content["date"])
+    slug = slug_from_character(content["character"], content["date"], content.get("slug_en"))
     json_path = data_dir / f"{slug}.json"
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(content, f, ensure_ascii=False, indent=2)
