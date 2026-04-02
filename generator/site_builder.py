@@ -178,7 +178,7 @@ GISCUS_SCRIPT = '''
         data-reactions-enabled="1"
         data-emit-metadata="0"
         data-input-position="bottom"
-        data-theme="preferred_color_scheme"
+        data-theme="dark"
         data-lang="zh-CN"
         crossorigin="anonymous"
         async>
