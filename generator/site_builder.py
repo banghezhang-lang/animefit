@@ -389,9 +389,15 @@ def render_homepage(all_content: list, lang: str, site_url: str, output_dir: str
         gradient = c.get("gradient", GRADIENTS[hash(c["character"]) % len(GRADIENTS)])
         emoji = c.get("emoji", EMOJIS[hash(c["character"]) % len(EMOJIS)])
         tagline_text = c.get("tagline", {}).get(lang, "")
+        image_url = c.get("image_url", "")
+        # 有真实图片（排除 mock 占位图）则用图片覆盖整个卡片区域
+        if image_url and "mock" not in image_url:
+            card_img_html = f'<img src="{image_url}" alt="{c["character"]}" loading="lazy">'
+        else:
+            card_img_html = f'<span class="card-emoji">{emoji}</span>'
         cards += f'''
     <a class="card" href="/{lang}/{slug}/">
-      <div class="card-img" style="background:{gradient}"><span class="card-emoji">{emoji}</span></div>
+      <div class="card-img" style="background:{gradient}">{card_img_html}</div>
       <div class="card-body">
         <div class="card-date">{c["date"]}</div>
         <div class="card-title">{c["character"]}</div>
