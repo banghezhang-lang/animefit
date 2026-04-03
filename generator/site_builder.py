@@ -108,6 +108,22 @@ ARTICLE_TEMPLATE = '''<!DOCTYPE html>
       width: 100%; border-radius: 12px; margin: 28px 0; display: block;
       border: 1px solid var(--border);
     }}
+    .gallery {{ margin: 28px 0; }}
+    .gallery-main {{
+      width: 100%; border-radius: 12px; display: block;
+      border: 1px solid var(--border); cursor: zoom-in;
+      transition: opacity 0.2s ease;
+    }}
+    .gallery-thumbs {{
+      display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+    }}
+    .gallery-thumb {{
+      width: calc(20% - 7px); aspect-ratio: 1/1; object-fit: cover;
+      border-radius: 8px; cursor: pointer; border: 2px solid transparent;
+      transition: border-color 0.2s, opacity 0.2s; opacity: 0.7;
+    }}
+    .gallery-thumb:hover {{ border-color: var(--pink); opacity: 1; }}
+
     .article-body {{ font-size: 0.95rem; line-height: 1.9; color: #c8c8d8; }}
     .article-body p {{ margin-bottom: 20px; }}
     .article-body h3 {{ font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--text); margin: 32px 0 16px; }}
@@ -327,12 +343,29 @@ def render_article(content: dict, lang: str, site_url: str, output_dir: str):
     # 组装 tags HTML
     tags_html = "".join(f'<span class="tag">#{t}</span>' for t in content["tags"])
     
-    # 处理图片
-    image_url = content.get("image_url") or f"{site_url}/images/{slug}.jpg"
+    # 处理图片：优先用 image_urls（5张画廊），降级用 image_url（单图），再降级 emoji
+    image_urls = [u for u in content.get("image_urls", []) if u]
+    image_url = content.get("image_url") or (image_urls[0] if image_urls else f"{site_url}/images/{slug}.jpg")
     image_html = ""
-    if content.get("image_url"):
+    if image_urls and len(image_urls) > 1:
+        # 多图画廊：第一张为主图，其余为缩略图
+        main_img = image_urls[0]
+        thumbs_html = "".join(
+            f'<img class="gallery-thumb" src="{u}" alt="{content["character"]} {i+1}" loading="lazy" onclick="this.closest(\'.gallery\').querySelector(\'.gallery-main\').src=this.src">'
+            for i, u in enumerate(image_urls)
+        )
+        image_html = f'''<div class="gallery">
+  <img class="gallery-main" src="{main_img}" alt="{content["character"]}" loading="lazy">
+  <div class="gallery-thumbs">{thumbs_html}</div>
+</div>'''
+    elif image_urls:
+        # 单图（image_urls 只有1张）
+        image_html = f'<img class="article-img" src="{image_urls[0]}" alt="{content["character"]}" loading="lazy">'
+    elif content.get("image_url"):
+        # 向后兼容旧数据
         image_html = f'<img class="article-img" src="{content["image_url"]}" alt="{content["character"]}" loading="lazy">'
     
+
     gradient = content.get("gradient", GRADIENTS[hash(content["character"]) % len(GRADIENTS)])
     emoji = content.get("emoji", EMOJIS[hash(content["character"]) % len(EMOJIS)])
     

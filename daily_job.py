@@ -232,11 +232,23 @@ def run_daily_job(
         from site_builder import slug_from_character
         slug = slug_from_character(content["character"], content["date"], content.get("slug_en"))
 
-        # ── 图片生成 ──
+        # ── 图片生成（5张不同角度）──
         if not dry_run:
-            img_url = generate_image(content["image_prompt"], slug)
-            if img_url:
-                content["image_url"] = img_url
+            image_prompts = content.get("image_prompts", [content.get("image_prompt")])
+            image_urls = []
+            for i, img_prompt in enumerate(image_prompts):
+                print(f"\n生成第 {i+1}/{len(image_prompts)} 张图片...")
+                img_slug = f"{slug}-{i+1}"
+                img_url = generate_image(img_prompt, img_slug)
+                if img_url:
+                    image_urls.append(img_url)
+                    print(f"  ✓ 第 {i+1} 张完成")
+                else:
+                    print(f"  ⚠️ 第 {i+1} 张生成失败，跳过")
+            content["image_urls"] = image_urls
+            # 向后兼容：封面图用第1张
+            if image_urls:
+                content["image_url"] = image_urls[0]
 
         # ── 渲染多语言页面 ──
         print("\n渲染页面...")

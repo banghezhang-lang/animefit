@@ -124,6 +124,53 @@ Output only the prompt text, nothing else.
 
 
 # ─────────────────────────────────────────────
+# Step 2b: 生成5张图片的 Prompt（不同角度/场景）
+# ─────────────────────────────────────────────
+def step2b_generate_multi_image_prompts(theme: dict, cover_prompt: str) -> list:
+    """
+    基于主题和封面 prompt，生成5个不同角度/场景的图片 prompt。
+    返回列表长度 = 5，每个元素为英文 prompt 字符串。
+    第0张是封面（cover_prompt），后4张为不同角度。
+    """
+    system = "You are an expert AI art director for anime fashion editorials. Create varied image prompts that tell a complete fashion story from multiple angles."
+    prompt = f"""
+The cover image prompt for this article is already created:
+COVER: {cover_prompt}
+
+Character: {theme['character']}
+Style: {theme['style']}
+Character description: {theme.get('character_desc', '')}
+Outfit description: {theme.get('outfit_desc', '')}
+
+Now create 4 MORE image prompts showing DIFFERENT angles/scenes for the same character and outfit.
+Each must show the same character, same outfit, but from a different perspective or moment:
+1. Close-up portrait: face and upper body, dramatic lighting, showing expression and accessories
+2. Full-body shot: complete outfit visible, dynamic pose, showing shoes and full silhouette
+3. Action/movement shot: character in motion, outfit in dynamic flow, energetic pose
+4. Atmospheric/scene shot: character in background, emphasizing the environment and mood
+
+Requirements for each prompt:
+- English only, under 100 words each
+- Keep the same character appearance, outfit colors/materials consistent with cover
+- Vary composition, pose, and lighting
+- End each with: highly detailed, fashion magazine editorial, vibrant colors, 4k
+
+Output ONLY a JSON array of 4 strings (no numbering, no labels):
+["prompt1", "prompt2", "prompt3", "prompt4"]
+"""
+    result = chat(system, prompt, temperature=0.75)
+    match = re.search(r'\[.*\]', result, re.DOTALL)
+    if match:
+        extra_prompts = json.loads(match.group())
+        # 封面在最前，共5张
+        return [cover_prompt] + extra_prompts[:4]
+    # 解析失败降级：5张都用封面 prompt（加角度后缀）
+    angles = ["cover shot", "close-up portrait", "full-body shot", "action shot", "atmospheric shot"]
+    base = cover_prompt.rstrip(", 4k").rstrip()
+    return [f"{base}, {a}, highly detailed, fashion magazine editorial, vibrant colors, 4k" for a in angles]
+
+
+# ─────────────────────────────────────────────
 # Step 3: 提炼一句话核心内容（三语）
 # ─────────────────────────────────────────────
 def step3_generate_tagline(theme: dict) -> dict:
@@ -414,6 +461,11 @@ def generate_daily_content(
     image_prompt = step2_generate_image_prompt(theme)
     print(f"  → {image_prompt[:80]}...")
 
+    # Step 2b
+    print("Step 2b: 生成5张图片 Prompt（不同角度）...")
+    image_prompts = step2b_generate_multi_image_prompts(theme, image_prompt)
+    print(f"  → 共 {len(image_prompts)} 个 prompt")
+
     # Step 3
     print("Step 3: 生成金句标语...")
     tagline = step3_generate_tagline(theme)
@@ -440,12 +492,14 @@ def generate_daily_content(
         "character": theme["character"],
         "style": theme["style"],
         "theme": theme,
-        "image_prompt": image_prompt,
+        "image_prompt": image_prompt,       # 封面 prompt（向后兼容）
+        "image_prompts": image_prompts,     # 5张图片 prompt 列表
         "tagline": tagline,
         "tags": tags,
         "description": description,
         "article_body": article_body,
-        "image_url": None,  # 后续步骤填充
+        "image_url": None,                  # 封面图（向后兼容）
+        "image_urls": [],                   # 5张图片 URL 列表（后续步骤填充）
     }
 
     print(f"\n✅ 内容生成完成！角色: {theme['character']} · 风格: {theme['style']}")
