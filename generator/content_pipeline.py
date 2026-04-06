@@ -9,7 +9,7 @@ import re
 from datetime import date
 from openai import OpenAI
 try:
-    from config import (
+    from generator.config import (
         API_KEY, API_BASE, TEXT_MODEL,
         ANIME_CHARACTERS, FASHION_STYLES,
         LANGUAGES, LANG_INFO

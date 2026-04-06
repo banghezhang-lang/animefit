@@ -4,9 +4,9 @@ AnimeFit 网站配置文件
 
 # ── OpenAI / 兼容 API 配置 ──
 # DeepSeek 配置（推荐，性价比高，国内访问稳定）
-API_KEY = "sk-bd00d21119fd43239a7dc7f3bbb6e42d"  # DeepSeek API Key
-API_BASE = "https://api.deepseek.com/v1"  # DeepSeek API 地址
-TEXT_MODEL = "deepseek-chat"  # DeepSeek 文本模型（V3）
+API_KEY = "sk-fwvzzktzkupnvbgedylylqgbjcjdevbcsoncucqtmsemkxcd"  # 硅基流动（共用图片Key）
+API_BASE = "https://api.siliconflow.cn/v1"  # 硅基流动 API 地址
+TEXT_MODEL = "deepseek-ai/DeepSeek-V3"
 
 # ── 图片生成配置 ──
 # SiliconFlow 方案（国内可访问，注册送免费额度 https://cloud.siliconflow.cn）
