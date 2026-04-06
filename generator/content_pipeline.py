@@ -132,9 +132,9 @@ def step2b_generate_multi_image_prompts(theme: dict, cover_prompt: str) -> list:
     返回列表长度 = 5，每个元素为英文 prompt 字符串。
     第0张是封面（cover_prompt），后4张为不同角度。
     """
-    system = "You are an expert AI art director for anime fashion editorials. Create varied image prompts that tell a complete fashion story from multiple angles."
+    system = "You are an expert AI art director for anime fashion editorials. Strictly preserve visual style across all images."
     prompt = f"""
-The cover image prompt for this article is already created:
+The cover image prompt defines the VISUAL STYLE for this entire photo series:
 COVER: {cover_prompt}
 
 Character: {theme['character']}
@@ -142,20 +142,28 @@ Style: {theme['style']}
 Character description: {theme.get('character_desc', '')}
 Outfit description: {theme.get('outfit_desc', '')}
 
-Now create 4 MORE image prompts showing DIFFERENT angles/scenes for the same character and outfit.
-Each must show the same character, same outfit, but from a different perspective or moment:
-1. Close-up portrait: face and upper body, dramatic lighting, showing expression and accessories
-2. Full-body shot: complete outfit visible, dynamic pose, showing shoes and full silhouette
-3. Action/movement shot: character in motion, outfit in dynamic flow, energetic pose
-4. Atmospheric/scene shot: character in background, emphasizing the environment and mood
+Now create 4 image prompts for DIFFERENT ANGLES, but you MUST keep the EXACT SAME visual style as the cover.
+Only change: camera angle, pose, composition framing.
+DO NOT change: lighting mood, color palette, background style, aesthetic, art direction, quality level.
 
-Requirements for each prompt:
-- English only, under 100 words each
-- Keep the same character appearance, outfit colors/materials consistent with cover
-- Vary composition, pose, and lighting
-- End each with: highly detailed, fashion magazine editorial, vibrant colors, 4k
+Strict requirements for each of the 4 prompts:
+1. CLOSE-UP: same lighting mood & color grading as cover, tight frame on face/upper body, accessories visible
+2. FULL-BODY: same lighting & palette as cover, complete outfit visible, dynamic pose, full silhouette
+3. ACTION/MOVEMENT: same lighting & palette as cover, character in motion, outfit flowing, energetic pose
+4. ATMOSPHERIC: same lighting & palette as cover, environmental background, mood preserved
 
-Output ONLY a JSON array of 4 strings (no numbering, no labels):
+CRITICAL — copy these elements DIRECTLY from the cover prompt into each new prompt:
+- lighting type and mood (e.g. "golden hour", "neon-lit", "soft diffused")
+- color palette / color grading (e.g. "warm tones", "cool blue palette", "vintage sepia")
+- background style and setting (e.g. "urban street", "rooftop at dusk", "flower garden")
+- art direction (e.g. "anime editorial", "cinematic", "soft watercolor")
+- camera/composition style
+
+Then ONLY append the angle/framing variation.
+End each with: highly detailed, fashion magazine editorial, vibrant colors, 4k
+English only, under 100 words each.
+
+Output ONLY a JSON array of 4 strings:
 ["prompt1", "prompt2", "prompt3", "prompt4"]
 """
     result = chat(system, prompt, temperature=0.75)
